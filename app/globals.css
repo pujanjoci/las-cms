@@ -1,26 +1,169 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ─────────────────────────────────────────────────────────────────────────────
+   CMS Portal — Design System
+   Primary: #1B2A4A (Navy)  |  Accent: #C9A84C (Gold)  |  Surface: #F5F6FA
+───────────────────────────────────────────────────────────────────────────── */
+
+@theme {
+  /* Brand colors (Indigo/Violet) */
+  --color-primary:        #4F46E5; /* indigo-600 */
+  --color-primary-light:  #6366F1; /* indigo-500 */
+  --color-primary-dark:   #4338CA; /* indigo-700 */
+  --color-accent:         #4F46E5;
+  --color-accent-light:   #EEF2FF; /* indigo-50 */
+  --color-accent-dark:    #3730A3; /* indigo-800 */
+
+  /* Surface palette (Slate) */
+  --color-surface:        #F8FAFC; /* slate-50 */
+  --color-surface-card:   #FFFFFF;
+  --color-surface-raised: #F1F5F9; /* slate-100 */
+  --color-border:         #E2E8F0; /* slate-200 */
+  --color-border-strong:  #CBD5E1; /* slate-300 */
+
+  /* Text */
+  --color-text-primary:   #1E293B; /* slate-800 */
+  --color-text-secondary: #475569; /* slate-600 */
+  --color-text-muted:     #94A3B8; /* slate-400 */
+  --color-text-inverse:   #FFFFFF;
+
+  /* Status colors */
+  --color-approved:       #10B981; /* emerald-500 */
+  --color-approved-bg:    #D1FAE5; /* emerald-100 */
+  --color-pending:        #F59E0B; /* amber-500 */
+  --color-pending-bg:     #FEF3C7; /* amber-100 */
+  --color-review:         #4F46E5; /* indigo-600 */
+  --color-review-bg:      #EEF2FF; /* indigo-50 */
+  --color-rejected:       #EF4444; /* red-500 */
+  --color-rejected-bg:    #FEE2E2; /* red-100 */
+  --color-draft:          #64748B; /* slate-500 */
+  --color-draft-bg:       #F1F5F9; /* slate-100 */
+  --color-cancelled:      #7C3AED; /* violet-600 */
+  --color-cancelled-bg:   #F5F3FF; /* violet-50 */
+
+  /* Risk grade colors */
+  --color-grade-a:        #10B981;
+  --color-grade-b:        #0EA5E9;
+  --color-grade-c:        #F59E0B;
+  --color-grade-d:        #F97316;
+  --color-grade-e:        #EF4444;
+
+  /* Fonts */
+  --font-display:  var(--font-sora);
+  --font-sans:     var(--font-dm-sans);
+
+  /* Spacing extras */
+  --spacing-18:  4.5rem;
+  --spacing-22:  5.5rem;
+
+  /* Shadows */
+  --shadow-card:  0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-modal: 0 20px 60px -10px rgb(0 0 0 / 0.25);
+  --shadow-nav:   0 2px 8px 0 rgb(0 0 0 / 0.05);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--color-surface); }
+::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-primary-light); }
+
+/* ── Focus ring ───────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ── Status badge base styles ─────────────────────────────────────────────── */
+.status-approved   { background: var(--color-approved-bg);   color: var(--color-approved);   }
+.status-pending    { background: var(--color-pending-bg);    color: var(--color-pending);    }
+.status-review     { background: var(--color-review-bg);     color: var(--color-review);     }
+.status-rejected   { background: var(--color-rejected-bg);   color: var(--color-rejected);   }
+.status-draft      { background: var(--color-draft-bg);      color: var(--color-draft);      }
+.status-cancelled  { background: var(--color-cancelled-bg);  color: var(--color-cancelled);  }
+
+/* ── Risk grade badge ────────────────────────────────────────────────────── */
+.grade-a { background: #D1FAE5; color: #059669; }
+.grade-b { background: #DBEAFE; color: #0284C7; }
+.grade-c { background: #FEF3C7; color: #D97706; }
+.grade-d { background: #FFEDD5; color: #EA580C; }
+.grade-e { background: #FEE2E2; color: #DC2626; }
+
+/* ── Sidebar transition ──────────────────────────────────────────────────── */
+.sidebar-transition { transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* ── Table styles ────────────────────────────────────────────────────────── */
+.cms-table { border-collapse: separate; border-spacing: 0; width: 100%; }
+.cms-table thead th {
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+.cms-table tbody tr {
+  transition: background 150ms;
+}
+.cms-table tbody tr:hover { background: var(--color-surface); }
+.cms-table tbody td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+}
+
+/* ── Animate pulse skeleton ──────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface-raised) 25%, var(--color-border) 50%, var(--color-surface-raised) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.375rem;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Form input base ─────────────────────────────────────────────────────── */
+.cms-input {
+  width: 100%;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: white;
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  transition: border-color 150ms, box-shadow 150ms;
+  outline: none;
+}
+.cms-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgb(201 168 76 / 0.15);
+}
+.cms-input.error {
+  border-color: var(--color-rejected);
+  box-shadow: 0 0 0 3px rgb(220 38 38 / 0.1);
 }

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "1",
+    "username": "TestUser",
+    "password": "test123",
+    "name": "Test User",
+    "email": "testuser@bank.com.np",
+    "role": "initiator",
+    "branch": "Head Office"
+  },
+  {
+    "id": "2",
+    "username": "TestUser1",
+    "password": "test123",
+    "name": "Test User1",
+    "email": "testuser1@bank.com.np",
+    "role": "supporter",
+    "branch": "Kathmandu"
+  },
+  {
+    "id": "3",
+    "username": "TestUser2",
+    "password": "test123",
+    "name": "Test User2",
+    "email": "testuser2@bank.com.np",
+    "role": "reviewer",
+    "branch": "Head Office"
+  },
+  {
+    "id": "4",
+    "username": "TestUser3",
+    "password": "test123",
+    "name": "Test User3",
+    "email": "testuser3@bank.com.np",
+    "role": "approver",
+    "branch": "Head Office"
+  },
+  {
+    "id": "5",
+    "username": "superstaff",
+    "password": "test123",
+    "name": "Super Staff",
+    "email": "superstaff@bank.com.np",
+    "role": "super_staff",
+    "branch": "Head Office"
+  }
+]

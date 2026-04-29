@@ -1,0 +1,9 @@
+{
+  "username": "credit.maker",
+  "email": "maker@cmsbank.com.np",
+  "password": "UserPassword123!",
+  "full_name": "Credit Officer",
+  "branch": "Kathmandu Branch",
+  "designation": "Credit Maker",
+  "roles": ["maker"]
+}

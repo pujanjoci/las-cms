@@ -1,0 +1,20 @@
+[
+  {
+    "id": "101",
+    "username": "admin",
+    "password": "Admin@123",
+    "name": "Admin User",
+    "email": "admin@bank.com.np",
+    "role": "admin",
+    "branch": "Head Office"
+  },
+  {
+    "id": "102",
+    "username": "superadmin",
+    "password": "SuperAdmin@123",
+    "name": "Super Admin",
+    "email": "superadmin@bank.com.np",
+    "role": "super_admin",
+    "branch": "Head Office"
+  }
+]

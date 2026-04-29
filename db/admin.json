@@ -1,0 +1,9 @@
+{
+  "username": "admin",
+  "email": "admin@cmsbank.com.np",
+  "password": "AdminPassword123!",
+  "full_name": "System Administrator",
+  "branch": "Head Office",
+  "designation": "System Admin",
+  "roles": ["admin"]
+}
