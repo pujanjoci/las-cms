@@ -96,6 +96,18 @@ export interface CollateralData {
   insurance_expiry: string | null;
 }
 
+export interface Facility {
+  id: number;
+  borrower_id: number;
+  facility_type: FacilityType;
+  currency: string;
+  amount: number;
+  interest_rate: number;
+  expiry_date: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface Proposal {
   id: number;
   borrower_id: number;

@@ -12,7 +12,7 @@ export async function createBorrower(prevState: any, formData: FormData) {
   const session = await requireAuth();
   requirePermission(session, PERMISSIONS.BORROWER_CREATE);
 
-  const data = Object.fromEntries(formData.entries());
+  const data = Object.fromEntries(formData.entries()) as Record<string, any>;
   
   // Format numeric values if present
   if (data.annual_turnover) data.annual_turnover = Number(data.annual_turnover);

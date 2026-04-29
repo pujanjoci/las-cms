@@ -13,10 +13,22 @@ import {
   LogOut,
   Clock
 } from 'lucide-react';
-import type { SessionUser } from '@/lib/types';
+import type { SessionUser, Permission } from '@/lib/types';
 import { hasPermission, PERMISSIONS } from '@/lib/rbac';
 import { useActionState } from 'react';
 import { logoutAction } from '@/app/actions/auth';
+
+interface SidebarItem {
+  name: string;
+  href: string;
+  icon: React.ElementType;
+  permission?: Permission;
+}
+
+interface SidebarSection {
+  title: string;
+  items: SidebarItem[];
+}
 
 interface SidebarProps {
   user: SessionUser;
@@ -26,7 +38,7 @@ export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
   const [state, formAction] = useActionState(logoutAction, null);
 
-  const sections = [
+  const sections: SidebarSection[] = [
     {
       title: 'Appraisal',
       items: [
@@ -51,7 +63,7 @@ export function Sidebar({ user }: SidebarProps) {
     }
   ];
 
-  const adminSections = [
+  const adminSections: SidebarSection[] = [
     {
       title: 'Administration',
       items: [
@@ -63,7 +75,7 @@ export function Sidebar({ user }: SidebarProps) {
     }
   ];
 
-  const superAdminSections = [
+  const superAdminSections: SidebarSection[] = [
     {
       title: 'System',
       items: [
@@ -72,7 +84,7 @@ export function Sidebar({ user }: SidebarProps) {
     }
   ];
 
-  const allSections = [...sections];
+  const allSections: SidebarSection[] = [...sections];
   if (user.roles.includes('admin') || user.roles.includes('super_admin')) {
     allSections.push(...adminSections);
   }

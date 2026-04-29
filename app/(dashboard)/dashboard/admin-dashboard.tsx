@@ -52,7 +52,7 @@ export function AdminDashboard({
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: number) => `NPR ${(value/1000000).toFixed(1)}M`} />
+                  <Tooltip formatter={(value: any) => `NPR ${(value/1000000).toFixed(1)}M`} />
                   <Legend verticalAlign="bottom" height={36}/>
                 </RechartsPieChart>
               </ResponsiveContainer>
