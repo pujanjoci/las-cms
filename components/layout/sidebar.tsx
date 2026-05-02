@@ -70,7 +70,9 @@ export function Sidebar({ user }: SidebarProps) {
         { name: 'Policy', href: '/admin/policy', icon: Settings, permission: PERMISSIONS.SETTINGS_MANAGE },
         { name: 'Eligible Scripts', href: '/admin/scripts', icon: ShieldAlert, permission: PERMISSIONS.SETTINGS_MANAGE },
         { name: 'User Management', href: '/settings/users', icon: Users, permission: PERMISSIONS.USER_MANAGE },
-        { name: 'Approval Chain', href: '/admin/workflow', icon: GitPullRequest, permission: PERMISSIONS.SETTINGS_MANAGE },
+        { name: 'Departments', href: '/admin/departments', icon: Settings, permission: PERMISSIONS.SETTINGS_MANAGE },
+        { name: 'Approval Chain', href: '/workflow/config', icon: GitPullRequest, permission: PERMISSIONS.SETTINGS_MANAGE },
+        { name: 'Audit Trails', href: '/admin/audit', icon: Clock, permission: PERMISSIONS.SETTINGS_MANAGE },
       ]
     }
   ];

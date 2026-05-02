@@ -5,6 +5,7 @@ import { supabase } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { hasPermission, PERMISSIONS } from '@/lib/rbac';
+import { auditLog } from '@/lib/audit';
 
 export async function createMemoAction(prevState: any, formData: FormData) {
   const session = await getSession();
@@ -57,6 +58,18 @@ export async function createMemoAction(prevState: any, formData: FormData) {
     return { error: 'Failed to create credit memo' };
   }
 
+  // Log Audit Trail
+  const { data: newMemo } = await supabase.from('credit_memos').select('id').eq('reference_no', reference_no).single();
+  if (newMemo) {
+    await auditLog({
+      entityType: 'credit_memo',
+      entityId: newMemo.id,
+      action: 'create',
+      after: { reference_no, applicant_name, proposed_amount, status: isDraft ? 'draft' : 'pending_review' },
+      actorId: session.id,
+    });
+  }
+
   revalidatePath('/memo/review');
   revalidatePath('/dashboard');
   
@@ -89,6 +102,15 @@ export async function updateMemoStatusAction(memoId: string, newStatus: string) 
   if (error) {
     return { error: 'Failed to update memo status' };
   }
+
+  // Log Audit Trail
+  await auditLog({
+    entityType: 'credit_memo',
+    entityId: memoId,
+    action: 'update_status',
+    after: { status: newStatus },
+    actorId: session.id,
+  });
 
   revalidatePath('/memo/review');
   return { success: true };

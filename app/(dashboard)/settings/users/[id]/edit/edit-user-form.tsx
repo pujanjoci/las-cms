@@ -114,6 +114,17 @@ export function EditUserForm({ user, currentRoleId, roles, isSuperAdmin }: EditU
           />
         </div>
         
+        <div className="space-y-2">
+          <label className="text-sm font-bold text-slate-700">Employee Code</label>
+          <input 
+            type="text" 
+            name="employee_code" 
+            defaultValue={user.employee_code || ''}
+            placeholder="e.g. EMP-123456"
+            className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm font-medium"
+          />
+        </div>
+        
         <div className="space-y-2 md:col-span-2">
           <label className="text-sm font-bold text-slate-700">System Role</label>
           <select 

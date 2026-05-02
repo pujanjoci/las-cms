@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function BorrowerProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  if (!id || isNaN(Number(id))) {
+  if (!id) {
     redirect('/dashboard');
   }
 

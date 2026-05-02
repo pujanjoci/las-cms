@@ -5,7 +5,7 @@ import { Trash2, Loader2 } from 'lucide-react';
 import { deleteUserAction } from '@/app/actions/user';
 import { useRouter } from 'next/navigation';
 
-export function DeleteUserButton({ userId, userName }: { userId: number; userName: string }) {
+export function DeleteUserButton({ userId, userName }: { userId: string; userName: string }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 

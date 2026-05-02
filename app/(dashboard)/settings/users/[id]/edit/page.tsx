@@ -4,7 +4,7 @@ import { requirePermission, PERMISSIONS } from '@/lib/rbac';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { EditUserForm } from './edit-user-form';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 export const metadata = {
   title: 'Edit User',
@@ -18,10 +18,10 @@ export default async function EditUserPage(props: { params: Promise<{ id: string
   
   requirePermission(session, PERMISSIONS.USER_MANAGE);
   const isSuperAdmin = session.roles.includes('super_admin');
-  const targetUserId = parseInt(params.id, 10);
+  const targetUserId = params.id;
 
-  if (isNaN(targetUserId)) {
-    return notFound();
+  if (!targetUserId) {
+    redirect('/dashboard');
   }
 
   // Fetch the target user's details

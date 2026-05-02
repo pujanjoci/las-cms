@@ -18,10 +18,16 @@ export async function createUserAction(formData: FormData) {
     const password = formData.get('password') as string;
     const branch = formData.get('branch') as string;
     const designation = formData.get('designation') as string;
+    let employee_code = formData.get('employee_code') as string;
     const role_id = formData.get('role_id') as string;
 
     if (!full_name || !email || !username || !password || !role_id) {
       return { error: 'Please fill in all required fields.' };
+    }
+
+    // 2.2. Generate random employee code if not provided
+    if (!employee_code) {
+      employee_code = 'EMP-' + Math.random().toString(36).substring(2, 8).toUpperCase();
     }
 
     // 2.5. RBAC Strict Check: Only super_admin can create admin/super_admin
@@ -49,6 +55,7 @@ export async function createUserAction(formData: FormData) {
         email,
         password_hash,
         full_name,
+        employee_code,
         branch: branch || null,
         designation: designation || null,
         is_active: 1
@@ -71,7 +78,7 @@ export async function createUserAction(formData: FormData) {
         .insert({
           user_id: newUser.id,
           role_id: parseInt(role_id, 10),
-          assigned_by: session.id === 9999 ? null : session.id
+          assigned_by: session.id
         });
 
       if (roleError) {
@@ -90,7 +97,7 @@ export async function createUserAction(formData: FormData) {
   }
 }
 
-export async function deleteUserAction(userId: number) {
+export async function deleteUserAction(userId: string) {
   try {
     // 1. Authorize the action
     const session = await requireAuth();
@@ -126,7 +133,7 @@ export async function deleteUserAction(userId: number) {
   }
 }
 
-export async function editUserAction(userId: number, formData: FormData) {
+export async function editUserAction(userId: string, formData: FormData) {
   try {
     // 1. Authorize the action
     const session = await requireAuth();
@@ -140,6 +147,7 @@ export async function editUserAction(userId: number, formData: FormData) {
     const password = formData.get('password') as string; // Optional
     const branch = formData.get('branch') as string;
     const designation = formData.get('designation') as string;
+    const employee_code = formData.get('employee_code') as string;
     const role_id = formData.get('role_id') as string;
     const is_active = formData.get('is_active') === 'on' ? 1 : 0;
 
@@ -177,6 +185,7 @@ export async function editUserAction(userId: number, formData: FormData) {
       username,
       email,
       full_name,
+      employee_code: employee_code || null,
       branch: branch || null,
       designation: designation || null,
       is_active,
@@ -211,7 +220,7 @@ export async function editUserAction(userId: number, formData: FormData) {
       .insert({
         user_id: userId,
         role_id: parseInt(role_id, 10),
-        assigned_by: session.id === 9999 ? null : session.id
+        assigned_by: session.id
       });
 
     if (roleError) {

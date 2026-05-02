@@ -7,11 +7,11 @@ import { supabase } from './db';
  */
 export async function auditLog(params: {
   entityType: string;
-  entityId: number;
+  entityId: string | number;
   action: string;
   before?: Record<string, unknown> | null;
   after?: Record<string, unknown> | null;
-  actorId: number;
+  actorId: string;
   ipAddress?: string | null;
 }): Promise<void> {
   const { error } = await supabase.from('audit_logs').insert({

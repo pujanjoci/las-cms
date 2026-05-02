@@ -44,7 +44,7 @@ export async function createBorrower(prevState: any, formData: FormData) {
     };
   }
 
-  let newId: number;
+  let newId: string;
 
   try {
     const { data: inserted, error } = await supabase
@@ -74,7 +74,7 @@ export async function createBorrower(prevState: any, formData: FormData) {
       throw new Error('Failed to retrieve inserted ID');
     }
     
-    newId = inserted.id;
+    newId = inserted.id as string;
 
     await auditLog({
       entityType: 'borrower',
