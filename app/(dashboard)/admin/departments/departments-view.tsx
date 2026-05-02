@@ -150,7 +150,7 @@ function DeptNode({
                   </div>
                 ))}
                 {dept.users.length > 3 && (
-                  <div className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-500">
+                  <div key="more-users" className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-500">
                     +{dept.users.length - 3}
                   </div>
                 )}
@@ -169,7 +169,7 @@ function DeptNode({
       </div>
 
       {hasChildren && isExpanded && (
-        <div className="mt-2 transition-all">
+        <div key="dept-children" className="mt-2 transition-all">
           {dept.children.map((child, idx) => (
             <DeptNode 
               key={`${child.id}-${idx}`} 
