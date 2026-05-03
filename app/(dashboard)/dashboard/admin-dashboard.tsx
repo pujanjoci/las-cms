@@ -96,13 +96,12 @@ export function AdminDashboard({
       </div>
 
       {/* Recent Cases Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="cms-table-container">
         <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
           <h2 className="text-lg font-bold font-display text-slate-800">Recent Cases</h2>
           <Link href="/appraisal/all" className="text-sm font-bold text-primary hover:underline">View Directory</Link>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <table className="cms-table">
             <thead>
               <tr className="bg-slate-50/50 border-b border-slate-100">
                 <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Case ID</th>
@@ -134,7 +133,6 @@ export function AdminDashboard({
               )}
             </tbody>
           </table>
-        </div>
       </div>
     </div>
   );

@@ -3,10 +3,10 @@ import { supabase } from '@/lib/db';
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string, roleId: string } }
+  { params }: { params: Promise<{ id: string, roleId: string }> }
 ) {
   try {
-    const { id: userId, roleId } = params;
+    const { id: userId, roleId } = await params;
     
     const { error } = await supabase
       .from('user_roles')

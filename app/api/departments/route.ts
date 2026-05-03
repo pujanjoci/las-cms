@@ -3,19 +3,18 @@ import { supabase } from '@/lib/db';
 
 export async function GET() {
   try {
-    // Fetch departments
-    const { data: departments, error: deptError } = await supabase
-      .from('departments')
-      .select('*');
+    // Fetch departments and users in parallel
+    const [deptRes, userRes] = await Promise.all([
+      supabase.from('departments').select('*'),
+      supabase.from('users').select('dept_id')
+    ]);
+
+    const { data: departments, error: deptError } = deptRes;
+    const { data: users, error: userError } = userRes;
 
     if (deptError) throw deptError;
-
-    // Fetch users count per department
-    const { data: users, error: userError } = await supabase
-      .from('users')
-      .select('dept_id');
-
     if (userError) throw userError;
+
 
     // Map users to departments with details
     const deptUsersMap = (users || []).reduce((acc: any, user: any) => {

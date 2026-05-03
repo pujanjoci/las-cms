@@ -16,19 +16,26 @@ export default async function DashboardPage() {
 
   const isAdmin = hasRole(session, 'admin', 'super_admin');
 
-  // We fetch basic proposal stats using raw counts
-  const { data: allProposals } = await supabase
-    .from('proposals')
-    .select('id, amount, status, created_by, proposal_number, created_at, borrowers(name)');
+  // Fetch data in parallel
+  const [proposalsRes, pendingMemosRes, logsRes] = await Promise.all([
+    supabase
+      .from('proposals')
+      .select('id, amount, status, created_by, proposal_number, created_at, borrowers(name)'),
+    supabase
+      .from('credit_memos')
+      .select('id', { count: 'exact', head: true })
+      .in('status', ['pending_review', 'under_review']),
+    isAdmin ? supabase
+      .from('audit_logs')
+      .select('*, users(full_name)')
+      .order('created_at', { ascending: false })
+      .limit(5) : Promise.resolve({ data: [] })
+  ]);
 
-  const proposals = allProposals || [];
-  
-  // Fetch pending credit memos
-  const { count: pendingMemosCount } = await supabase
-    .from('credit_memos')
-    .select('id', { count: 'exact', head: true })
-    .in('status', ['pending_review', 'under_review']);
-    
+  const proposals = proposalsRes.data || [];
+  const pendingMemosCount = pendingMemosRes.count || 0;
+  const logs = logsRes.data || [];
+
   // Format proposal items
   const formattedProposals = proposals.map(p => ({
     ...p,
@@ -62,13 +69,6 @@ export default async function DashboardPage() {
       name: key,
       value: statusGroups[key]
     })).filter(d => d.value > 0);
-
-    // Fetch Audit Logs
-    const { data: logs } = await supabase
-      .from('audit_logs')
-      .select('*, users(full_name)')
-      .order('created_at', { ascending: false })
-      .limit(5);
 
     return (
       <div className="space-y-8">

@@ -7,27 +7,28 @@ export async function GET() {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Fetch user's roles and departments from the junction table
-    const { data: userRoles, error: roleError } = await supabase
-      .from('user_roles')
-      .select('role_id, dept_id')
-      .eq('user_id', session.id);
+    // Fetch user's roles and pending approvals in parallel
+    const [userRolesRes, queueRes] = await Promise.all([
+      supabase
+        .from('user_roles')
+        .select('role_id, dept_id')
+        .eq('user_id', session.id),
+      supabase
+        .from('pending_approvals')
+        .select(`
+          *,
+          proposals (proposal_number, facility_type, amount),
+          borrowers:proposals (borrower_id, borrowers (name)),
+          approval_stages (stage_name),
+          departments (dept_name)
+        `)
+        .order('created_at', { ascending: true })
+    ]);
+
+    const { data: userRoles, error: roleError } = userRolesRes;
+    const { data: queue, error: queueError } = queueRes;
 
     if (roleError || !userRoles || userRoles.length === 0) return NextResponse.json([]);
-
-    // We can't easily do an OR query with multiple pairs in Supabase's simple syntax for cross-column matches
-    // but we can fetch all pending and filter in JS, or use a complex query
-    const { data: queue, error: queueError } = await supabase
-      .from('pending_approvals')
-      .select(`
-        *,
-        proposals (proposal_number, facility_type, amount),
-        borrowers:proposals (borrower_id, borrowers (name)),
-        approval_stages (stage_name),
-        departments (dept_name)
-      `)
-      .order('created_at', { ascending: true });
-
     if (queueError) throw queueError;
 
     // Filter queue items that match any of the user's role-dept assignments

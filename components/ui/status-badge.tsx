@@ -29,10 +29,10 @@ const STATUS_MAP: Record<string, { label: string; className: string }> = {
 
 export function StatusBadge({ status, size = 'sm' }: StatusBadgeProps) {
   const config = STATUS_MAP[status] || { label: status, className: 'status-draft' };
-  const sizeClass = size === 'sm' ? 'text-xs px-2.5 py-0.5' : 'text-sm px-3 py-1';
+  const sizeClass = size === 'sm' ? 'text-[10px] px-2 py-0.5' : 'text-[11px] px-3 py-1';
 
   return (
-    <span className={`inline-flex items-center font-semibold rounded-full ${sizeClass} ${config.className}`}>
+    <span className={`status-badge ${sizeClass} ${config.className}`}>
       {config.label}
     </span>
   );
@@ -57,9 +57,9 @@ export function RiskPill({ grade, showLabel = false }: RiskPillProps) {
   const config = GRADE_MAP[grade] || { label: 'N/A', className: 'grade-c' };
 
   return (
-    <span className={`inline-flex items-center gap-1.5 font-bold text-xs px-2.5 py-0.5 rounded-full ${config.className}`}>
+    <span className={`grade-badge inline-flex items-center gap-1.5 uppercase tracking-wider ${config.className}`}>
       <span>Grade {grade}</span>
-      {showLabel && <span className="font-normal">· {config.label}</span>}
+      {showLabel && <span className="font-medium opacity-80 italic">· {config.label}</span>}
     </span>
   );
 }

@@ -85,16 +85,16 @@ export function AppraisalTable({ cases }: { cases: CaseItem[] }) {
 
       {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="cms-table-container">
+          <table className="cms-table">
             <thead>
               <tr className="bg-slate-50/50 border-b border-slate-100">
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Case ID</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Borrower</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Facility Amount</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Current LTV</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Date</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-left">Case ID</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-left">Borrower</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-left">Facility Amount</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-left">Current LTV</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-left">Status</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-left">Date</th>
                 <th className="px-6 py-4"></th>
               </tr>
             </thead>
@@ -112,16 +112,16 @@ export function AppraisalTable({ cases }: { cases: CaseItem[] }) {
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
                         <span className="text-sm font-bold text-slate-700">{p.borrower_name}</span>
-                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{p.borrower_type}</span>
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{p.borrower_type.replace('_', ' ')}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-slate-600">NPR {p.amount.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-sm font-bold text-slate-600">NPR {p.amount.toLocaleString()}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <span className={`text-xs font-bold ${p.ltv > 60 ? 'text-red-500' : 'text-emerald-600'}`}>{p.ltv}%</span>
+                        <span className={`text-xs font-bold ${p.ltv > 60 ? 'text-rose-500' : 'text-emerald-600'}`}>{p.ltv}%</span>
                         <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden hidden sm:block">
                           <div
-                            className={`h-full rounded-full ${p.ltv > 60 ? 'bg-red-500' : 'bg-emerald-500'}`}
+                            className={`h-full rounded-full transition-all duration-500 ${p.ltv > 60 ? 'bg-rose-500' : 'bg-emerald-500'}`}
                             style={{ width: `${Math.min(p.ltv, 100)}%` }}
                           ></div>
                         </div>
@@ -130,11 +130,11 @@ export function AppraisalTable({ cases }: { cases: CaseItem[] }) {
                     <td className="px-6 py-4">
                       <StatusBadge status={p.status} />
                     </td>
-                    <td className="px-6 py-4 text-xs text-slate-500 font-medium">
+                    <td className="px-6 py-4 text-xs text-slate-500 font-bold">
                       {new Date(p.created_at).toLocaleDateString('en-NP')}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Link href={`/appraisal/${p.id}`} className="p-2 text-slate-400 hover:text-primary transition-all hover:translate-x-1 inline-block">
+                      <Link href={`/appraisal/${p.id}`} className="p-2 text-slate-400 hover:text-primary transition-all hover:translate-x-1 inline-block bg-slate-50 group-hover:bg-white rounded-lg border border-transparent group-hover:border-slate-100">
                         <ArrowRight className="h-4 w-4" />
                       </Link>
                     </td>
@@ -146,35 +146,37 @@ export function AppraisalTable({ cases }: { cases: CaseItem[] }) {
         </div>
 
         {/* Pagination */}
-        <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
-          <p className="text-xs text-slate-500 font-medium">
-            Showing {filteredCases.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1} to {Math.min(currentPage * PAGE_SIZE, filteredCases.length)} of {filteredCases.length} results
+        <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider">
+            Showing {filteredCases.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}—{Math.min(currentPage * PAGE_SIZE, filteredCases.length)} of {filteredCases.length} Results
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:text-slate-300 disabled:cursor-not-allowed transition-all"
+              className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Previous
             </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).slice(0, 5).map(page => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                  currentPage === page
-                    ? 'bg-primary text-white border border-primary shadow-sm'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                {page}
-              </button>
-            ))}
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).slice(0, 5).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`min-w-[32px] h-8 rounded-lg text-xs font-bold transition-all ${
+                    currentPage === page
+                      ? 'bg-primary text-white border border-primary shadow-sm shadow-indigo-100'
+                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:text-slate-300 disabled:cursor-not-allowed transition-all"
+              className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Next
             </button>

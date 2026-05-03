@@ -2,7 +2,7 @@
 
 /* ─────────────────────────────────────────────────────────────────────────────
    CMS Portal — Design System
-   Primary: #1B2A4A (Navy)  |  Accent: #C9A84C (Gold)  |  Surface: #F5F6FA
+   Primary: #4F46E5 (Indigo) | Surface: #F8FAFC (Slate)
 ───────────────────────────────────────────────────────────────────────────── */
 
 @theme {
@@ -22,7 +22,7 @@
   --color-border-strong:  #CBD5E1; /* slate-300 */
 
   /* Text */
-  --color-text-primary:   #1E293B; /* slate-800 */
+  --color-text-primary:   #0F172A; /* slate-900 */
   --color-text-secondary: #475569; /* slate-600 */
   --color-text-muted:     #94A3B8; /* slate-400 */
   --color-text-inverse:   #FFFFFF;
@@ -58,6 +58,7 @@
 
   /* Shadows */
   --shadow-card:  0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-modal: 0 20px 60px -10px rgb(0 0 0 / 0.25);
   --shadow-nav:   0 2px 8px 0 rgb(0 0 0 / 0.05);
 }
@@ -71,6 +72,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -81,19 +83,39 @@ body {
   line-height: 1.6;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display), sans-serif;
+  letter-spacing: -0.02em;
+}
+
 /* ── Scrollbar ────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--color-surface); }
-::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-primary-light); }
+
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--color-border); }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--color-primary-light); }
 
 /* ── Focus ring ───────────────────────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
 /* ── Status badge base styles ─────────────────────────────────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .status-approved   { background: var(--color-approved-bg);   color: var(--color-approved);   }
 .status-pending    { background: var(--color-pending-bg);    color: var(--color-pending);    }
 .status-review     { background: var(--color-review-bg);     color: var(--color-review);     }
@@ -102,45 +124,62 @@ body {
 .status-cancelled  { background: var(--color-cancelled-bg);  color: var(--color-cancelled);  }
 
 /* ── Risk grade badge ────────────────────────────────────────────────────── */
+.grade-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
 .grade-a { background: #D1FAE5; color: #059669; }
 .grade-b { background: #DBEAFE; color: #0284C7; }
 .grade-c { background: #FEF3C7; color: #D97706; }
 .grade-d { background: #FFEDD5; color: #EA580C; }
 .grade-e { background: #FEE2E2; color: #DC2626; }
 
-/* ── Sidebar transition ──────────────────────────────────────────────────── */
-.sidebar-transition { transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1); }
-
 /* ── Table styles ────────────────────────────────────────────────────────── */
+.cms-table-container {
+  overflow-x: auto;
+  border-radius: 1rem;
+  border: 1px solid var(--color-border);
+  background: white;
+  box-shadow: var(--shadow-card);
+}
+
 .cms-table { border-collapse: separate; border-spacing: 0; width: 100%; }
 .cms-table thead th {
-  background: var(--color-surface);
+  background: #F8FAFC;
   color: var(--color-text-secondary);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 0.75rem 1rem;
+  padding: 1rem;
   border-bottom: 1px solid var(--color-border);
   white-space: nowrap;
+  text-align: left;
 }
 .cms-table tbody tr {
-  transition: background 150ms;
+  transition: background 150ms ease;
 }
-.cms-table tbody tr:hover { background: var(--color-surface); }
+.cms-table tbody tr:hover { background: #F1F5F9; }
 .cms-table tbody td {
-  padding: 0.875rem 1rem;
+  padding: 1rem;
   border-bottom: 1px solid var(--color-border);
   font-size: 0.875rem;
   color: var(--color-text-primary);
+  font-weight: 500;
+}
+.cms-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
-/* ── Animate pulse skeleton ──────────────────────────────────────────────── */
+/* ── Shimmer Loading ─────────────────────────────────────────────────────── */
 .skeleton {
-  background: linear-gradient(90deg, var(--color-surface-raised) 25%, var(--color-border) 50%, var(--color-surface-raised) 75%);
+  background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
 }
 @keyframes shimmer {
   0%   { background-position: 200% 0; }
@@ -150,20 +189,28 @@ body {
 /* ── Form input base ─────────────────────────────────────────────────────── */
 .cms-input {
   width: 100%;
-  padding: 0.5rem 0.875rem;
+  padding: 0.625rem 1rem;
   border: 1px solid var(--color-border);
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   background: white;
   color: var(--color-text-primary);
   font-size: 0.875rem;
-  transition: border-color 150ms, box-shadow 150ms;
+  font-weight: 500;
+  transition: all 200ms ease;
   outline: none;
 }
 .cms-input:focus {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgb(201 168 76 / 0.15);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
 }
 .cms-input.error {
   border-color: var(--color-rejected);
-  box-shadow: 0 0 0 3px rgb(220 38 38 / 0.1);
+  background-color: #FFF1F2;
+}
+
+/* ── Utilities ───────────────────────────────────────────────────────────── */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }

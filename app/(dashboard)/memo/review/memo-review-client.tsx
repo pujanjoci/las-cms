@@ -36,12 +36,14 @@ export function MemoReviewClient({ memos, isApprover, currentUserId }: { memos: 
 
   if (memos.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-16 flex flex-col items-center text-center">
-        <div className="h-16 w-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4">
-          <CheckCircle className="h-8 w-8 text-emerald-500" />
+      <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm p-20 flex flex-col items-center text-center space-y-6">
+        <div className="h-20 w-20 rounded-full bg-emerald-50 flex items-center justify-center shadow-inner">
+          <CheckCircle className="h-10 w-10 text-emerald-500" />
         </div>
-        <h3 className="text-lg font-bold text-slate-700">All caught up!</h3>
-        <p className="text-sm text-slate-400 mt-1 max-w-xs">No pending credit memos in your review queue right now.</p>
+        <div className="space-y-2">
+          <h3 className="text-xl font-display font-bold text-slate-800">All caught up!</h3>
+          <p className="text-sm text-slate-500 font-medium max-w-xs mx-auto">No pending credit memos in your review queue right now.</p>
+        </div>
       </div>
     );
   }
@@ -49,43 +51,43 @@ export function MemoReviewClient({ memos, isApprover, currentUserId }: { memos: 
   return (
     <div className="space-y-4">
       {memos.map((memo) => (
-        <div key={memo.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden">
+        <div key={memo.id} className="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300 overflow-hidden">
           <div className="p-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-start gap-4">
-                <div className="h-11 w-11 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
-                  <FileText className="h-5 w-5" />
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-start gap-5">
+                <div className="h-14 w-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0 border border-indigo-100/50 shadow-sm">
+                  <FileText className="h-6 w-6" />
                 </div>
-                <div>
+                <div className="space-y-1">
                   <div className="flex items-center gap-3 flex-wrap">
-                    <span className="font-mono text-xs text-indigo-600 font-bold">{memo.ref}</span>
-                    <StatusBadge status={memo.status} />
+                    <span className="font-mono text-[10px] text-indigo-600 font-bold tracking-widest bg-indigo-50/50 px-2 py-0.5 rounded border border-indigo-100/50 uppercase">{memo.ref}</span>
+                    <StatusBadge status={memo.status} size="sm" />
                   </div>
-                  <p className="text-sm font-bold text-slate-800 mt-1">{memo.applicant}</p>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    NPR {memo.amount.toLocaleString()} · Coverage: {memo.coverage}%
+                  <p className="text-lg font-bold text-slate-800 group-hover:text-primary transition-colors">{memo.applicant}</p>
+                  <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">
+                    NPR {memo.amount.toLocaleString()} <span className="mx-2 text-slate-300">·</span> Coverage: <span className="text-indigo-600">{memo.coverage}%</span>
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${gradeColor(memo.grade)}`}>
+              <div className="flex items-center gap-4">
+                <span className={`px-3 py-1 rounded-full text-[10px] font-bold border uppercase tracking-widest shadow-sm ${gradeColor(memo.grade)}`}>
                   Grade {memo.grade}
                 </span>
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={() => setSelectedMemo(memo)}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-white transition-all"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm active:scale-95"
                   >
-                    <Eye className="h-3.5 w-3.5" /> View
+                    <Eye className="h-4 w-4" /> View
                   </button>
                   {memo.created_by === currentUserId && (
                     <button 
                       onClick={() => setMemoToDelete(memo.id)}
                       disabled={isPending}
-                      className="flex items-center gap-1.5 px-4 py-2 bg-red-50 border border-red-200 rounded-xl text-xs font-bold text-red-600 hover:bg-red-100 transition-all disabled:opacity-50"
+                      className="flex items-center gap-2 px-5 py-2.5 bg-rose-50 border border-rose-100 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-100 transition-all disabled:opacity-50 active:scale-95 shadow-sm"
                     >
-                      {isPending && memoToDelete === memo.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />} Delete
+                      {isPending && memoToDelete === memo.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />} Delete
                     </button>
                   )}
                   {isApprover && memo.status === 'pending_review' && (
@@ -93,16 +95,16 @@ export function MemoReviewClient({ memos, isApprover, currentUserId }: { memos: 
                       <button 
                         onClick={() => handleStatusUpdate(memo.id, 'approved')}
                         disabled={isPending}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-700 hover:bg-emerald-100 transition-all disabled:opacity-50"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-all disabled:opacity-50 active:scale-95 shadow-md shadow-emerald-100"
                       >
-                        {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />} Approve
+                        {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />} Approve
                       </button>
                       <button 
                         onClick={() => handleStatusUpdate(memo.id, 'rejected')}
                         disabled={isPending}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-red-50 border border-red-200 rounded-xl text-xs font-bold text-red-600 hover:bg-red-100 transition-all disabled:opacity-50"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-rose-600 rounded-xl text-xs font-bold hover:bg-rose-50 transition-all disabled:opacity-50 active:scale-95 shadow-sm"
                       >
-                        {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />} Return
+                        {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />} Return
                       </button>
                     </>
                   )}
