@@ -3,10 +3,10 @@ import { supabase } from '@/lib/db';
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const chainId = params.id;
+    const { id: chainId } = await params;
     const body = await req.json();
     const { chain_name, is_active, facility_types } = body;
 
@@ -30,10 +30,10 @@ export async function PUT(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const chainId = params.id;
+    const { id: chainId } = await params;
     const { error } = await supabase
       .from('approval_chains')
       .delete()

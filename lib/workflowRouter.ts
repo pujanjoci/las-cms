@@ -17,7 +17,7 @@ export function determineRoutingPath(proposal: any, stages: any[]) {
       const min = Number(stage.amount_min || 0);
       const max = stage.amount_max === null ? null : Number(stage.amount_max);
       
-      return amount >= min && (max === null || amount <= max);
+      return proposalAmount >= min && (max === null || proposalAmount <= max);
     })
     .sort((a, b) => a.stage_order - b.stage_order);
 }

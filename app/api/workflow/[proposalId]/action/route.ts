@@ -4,10 +4,10 @@ import { determineRoutingPath } from '@/lib/workflowRouter';
 
 export async function POST(
   req: Request,
-  { params }: { params: { proposalId: string } }
+  { params }: { params: Promise<{ proposalId: string }> }
 ) {
   try {
-    const proposalId = params.proposalId;
+    const { proposalId } = await params;
     const body = await req.json();
     const { action_type, action_by, remarks } = body;
     

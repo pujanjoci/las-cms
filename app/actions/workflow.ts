@@ -66,7 +66,7 @@ export async function submitToWorkflowAction(proposalId: string, facilityType: s
       entityId: proposalId,
       action: 'start_workflow',
       after: { chain_id: matchingChain.id, stage: firstStage.stage_name },
-      actorId: session.id,
+      actorId: String(session.id),
     });
 
     revalidatePath('/dashboard');
@@ -142,7 +142,7 @@ export async function approveWorkflowStepAction(proposalId: string, comments: st
       entityId: proposalId,
       action: nextStage ? 'approve_step' : 'final_approve',
       after: { stage: nextStage ? nextStage.stage_name : 'Completed' },
-      actorId: session.id,
+      actorId: String(session.id),
     });
 
     revalidatePath('/dashboard');

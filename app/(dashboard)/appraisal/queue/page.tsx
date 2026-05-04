@@ -48,6 +48,7 @@ export default async function QueuePage() {
     facility: item.proposals?.facility_type,
     created: item.proposals?.created_at,
     priority: Number(item.proposals?.amount) > 10000000 ? 'high' : 'normal',
+    isDraft: false,
   }));
 
   const myDrafts = drafts.map(p => ({

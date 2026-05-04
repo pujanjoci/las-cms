@@ -81,7 +81,7 @@ export async function createBorrower(prevState: any, formData: FormData) {
       entityId: newId,
       action: 'create',
       after: payload as Record<string, unknown>,
-      actorId: session.id,
+      actorId: String(session.id),
     });
 
   } catch (error: any) {

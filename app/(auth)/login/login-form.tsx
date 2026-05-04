@@ -2,7 +2,7 @@
 
 import { useActionState } from 'react';
 import { loginAction } from '@/app/actions/auth';
-import { LogIn } from 'lucide-react';
+import { LogIn, User, KeyRound, AlertCircle } from 'lucide-react';
 
 const initialState = {
   message: '',
@@ -15,71 +15,77 @@ export default function LoginForm() {
   return (
     <form action={formAction} className="space-y-6">
       {state.message && (
-        <div className="p-4 bg-rejected-bg border border-rejected/20 rounded-lg flex items-start">
-          <p className="text-sm font-medium text-rejected">{state.message}</p>
+        <div className="p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3 transition-all duration-300">
+          <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
+          <p className="text-sm font-semibold text-red-700">{state.message}</p>
         </div>
       )}
       
-      <div className="space-y-1">
-        <label className="block text-sm font-semibold text-text-primary" htmlFor="username">
+      <div className="space-y-2">
+        <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest ml-1" htmlFor="username">
           Username
         </label>
-        <input 
-          id="username"
-          name="username"
-          type="text" 
-          autoComplete="username"
-          className={`cms-input ${state.errors?.username ? 'error' : ''}`}
-          placeholder="Enter your username"
-        />
+        <div className="relative group">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors duration-200">
+            <User className="h-5 w-5" />
+          </div>
+          <input 
+            id="username"
+            name="username"
+            type="text" 
+            autoComplete="username"
+            required
+            className={`w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border-2 rounded-xl text-slate-900 placeholder:text-slate-300 focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all duration-300 outline-none ${state.errors?.username ? 'border-red-200 focus:border-red-300 focus:ring-red-50' : 'border-slate-100 focus:border-primary'}`}
+            placeholder="e.g. admin"
+          />
+        </div>
         {state.errors?.username && (
-          <p className="mt-1 text-xs text-rejected font-medium">{state.errors.username[0]}</p>
+          <p className="mt-1.5 text-xs text-red-500 font-bold ml-1">{state.errors.username[0]}</p>
         )}
       </div>
 
-      <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <label className="block text-sm font-semibold text-text-primary" htmlFor="password">
-            Password
-          </label>
+      <div className="space-y-2">
+        <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest ml-1" htmlFor="password">
+          Password
+        </label>
+        <div className="relative group">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors duration-200">
+            <KeyRound className="h-5 w-5" />
+          </div>
+          <input 
+            id="password"
+            name="password"
+            type="password" 
+            autoComplete="current-password"
+            required
+            className={`w-full pl-12 pr-4 py-3.5 bg-slate-50/50 border-2 rounded-xl text-slate-900 placeholder:text-slate-300 focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all duration-300 outline-none ${state.errors?.password ? 'border-red-200 focus:border-red-300 focus:ring-red-50' : 'border-slate-100 focus:border-primary'}`}
+            placeholder="••••••••"
+          />
         </div>
-        <input 
-          id="password"
-          name="password"
-          type="password" 
-          autoComplete="current-password"
-          className={`cms-input ${state.errors?.password ? 'error' : ''}`}
-          placeholder="••••••••"
-        />
         {state.errors?.password && (
-          <p className="mt-1 text-xs text-rejected font-medium">{state.errors.password[0]}</p>
+          <p className="mt-1.5 text-xs text-red-500 font-bold ml-1">{state.errors.password[0]}</p>
         )}
       </div>
 
       <button 
         type="submit" 
         disabled={isPending}
-        className="w-full flex justify-center items-center gap-2 bg-primary hover:bg-primary-light text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed shadow-md hover:shadow-lg mt-8"
+        className="w-full relative group overflow-hidden bg-primary hover:bg-primary-dark text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed shadow-xl shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 focus:ring-4 focus:ring-primary/20 active:translate-y-0 mt-4"
       >
-        {isPending ? (
-          <>
-            <div className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-            <span>Signing in...</span>
-          </>
-        ) : (
-          <>
-            <LogIn className="h-5 w-5" />
-            <span>Sign In</span>
-          </>
-        )}
+        <div className="relative z-10 flex justify-center items-center gap-3">
+          {isPending ? (
+            <>
+              <div className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+              <span>Authenticating...</span>
+            </>
+          ) : (
+            <>
+              <LogIn className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+              <span>Sign In to Dashboard</span>
+            </>
+          )}
+        </div>
       </button>
-
-      {/* For demo purposes, since there's no reset password flow yet */}
-      <div className="text-center mt-6">
-        <p className="text-xs text-text-muted">
-          Default admin: <span className="font-mono bg-surface-raised px-1 py-0.5 rounded">admin</span> / <span className="font-mono bg-surface-raised px-1 py-0.5 rounded">Admin@123</span>
-        </p>
-      </div>
     </form>
   );
 }

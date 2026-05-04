@@ -3,10 +3,10 @@ import { supabase } from '@/lib/db';
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const chainId = params.id;
+    const { id: chainId } = await params;
     const body = await req.json();
     const { 
       stage_order, 

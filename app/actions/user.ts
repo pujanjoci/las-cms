@@ -108,7 +108,7 @@ export async function deleteUserAction(userId: string) {
     }
 
     // Protect against self-deletion
-    if (session.id === userId) {
+    if (String(session.id) === userId) {
       return { error: 'Forbidden: You cannot delete your own active account.' };
     }
 

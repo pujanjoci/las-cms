@@ -66,7 +66,7 @@ export async function createMemoAction(prevState: any, formData: FormData) {
       entityId: newMemo.id,
       action: 'create',
       after: { reference_no, applicant_name, proposed_amount, status: isDraft ? 'draft' : 'pending_review' },
-      actorId: session.id,
+      actorId: String(session.id),
     });
   }
 
@@ -109,7 +109,7 @@ export async function updateMemoStatusAction(memoId: string, newStatus: string) 
     entityId: memoId,
     action: 'update_status',
     after: { status: newStatus },
-    actorId: session.id,
+    actorId: String(session.id),
   });
 
   revalidatePath('/memo/review');

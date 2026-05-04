@@ -1,8 +1,10 @@
 'use client';
 
-import { Bell, Search, Menu, User } from 'lucide-react';
+import { Bell, Search, Menu, User, LogOut } from 'lucide-react';
 import type { SessionUser } from '@/lib/types';
 import { useSidebar } from './sidebar-context';
+import { logoutAction } from '@/app/actions/auth';
+import { useActionState } from 'react';
 
 interface TopbarProps {
   user: SessionUser;
@@ -10,6 +12,7 @@ interface TopbarProps {
 
 export function Topbar({ user }: TopbarProps) {
   const { toggle } = useSidebar();
+  const [state, formAction] = useActionState(logoutAction, null);
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -50,11 +53,21 @@ export function Topbar({ user }: TopbarProps) {
 
         <div className="h-6 w-px bg-border hidden sm:block"></div>
 
-        <div className="flex items-center gap-1 md:gap-2">
+        <div className="flex items-center gap-2 md:gap-4">
           <button className="relative p-2 text-text-secondary hover:text-primary transition-all rounded-xl hover:bg-slate-50 group">
             <Bell className="h-5 w-5" />
             <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white animate-pulse"></span>
           </button>
+
+          <form action={formAction}>
+            <button 
+              type="submit"
+              className="p-2 text-red-500 hover:text-red-700 transition-all rounded-xl hover:bg-red-50 border border-transparent hover:border-red-100 group"
+              title="Sign Out"
+            >
+              <LogOut className="h-5 w-5" />
+            </button>
+          </form>
           
           <div className="md:hidden h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs border border-primary/20">
             {user.full_name.charAt(0)}
