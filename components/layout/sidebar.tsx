@@ -16,8 +16,6 @@ import {
 } from 'lucide-react';
 import type { SessionUser, Permission } from '@/lib/types';
 import { hasPermission, PERMISSIONS } from '@/lib/rbac';
-import { useActionState } from 'react';
-import { logoutAction } from '@/app/actions/auth';
 import { useSidebar } from './sidebar-context';
 
 interface SidebarItem {
@@ -39,7 +37,6 @@ interface SidebarProps {
 export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
   const { isOpen, close } = useSidebar();
-  const [state, formAction] = useActionState(logoutAction, null);
 
   const sections: SidebarSection[] = [
     {
@@ -80,21 +77,9 @@ export function Sidebar({ user }: SidebarProps) {
     }
   ];
 
-  const superAdminSections: SidebarSection[] = [
-    {
-      title: 'System',
-      items: [
-        { name: 'System Settings', href: '/superadmin/settings', icon: Settings, permission: PERMISSIONS.SETTINGS_MANAGE },
-      ]
-    }
-  ];
-
   const allSections: SidebarSection[] = [...sections];
   if (user.roles.includes('admin') || user.roles.includes('super_admin')) {
     allSections.push(...adminSections);
-  }
-  if (user.roles.includes('super_admin')) {
-    allSections.push(...superAdminSections);
   }
 
   return (
@@ -175,15 +160,7 @@ export function Sidebar({ user }: SidebarProps) {
               <p className="text-[10px] text-text-muted truncate capitalize font-semibold">{user.roles[0].replace('_', ' ')}</p>
             </div>
           </div>
-          <form action={formAction}>
-            <button 
-              type="submit"
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-red-600 hover:bg-red-50 transition-all border border-transparent hover:border-red-100"
-            >
-              <LogOut className="h-4.5 w-4.5" />
-              Sign Out
-            </button>
-          </form>
+
           <div className="mt-4 pt-4 border-t border-border/50 text-center">
             <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest opacity-60">
               NRB Unified Directive 2081
