@@ -50,7 +50,7 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
 // ── Permission checks ─────────────────────────────────────────────────────────
 
 export function hasPermission(user: SessionUser, permission: Permission): boolean {
-  if (user.roles.includes('admin')) return true;
+  if (user.roles.includes('admin') || user.roles.includes('super_admin')) return true;
   return user.permissions.includes(permission) ||
     user.roles.some((role) => ROLE_PERMISSIONS[role]?.includes(permission));
 }

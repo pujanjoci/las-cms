@@ -19,7 +19,7 @@ export function verifyPassword(password: string, hash: string): boolean {
 
 // ── Session Management ────────────────────────────────────────────────────────
 
-export async function createSession(userId: number, username: string): Promise<void> {
+export async function createSession(userId: string, username: string): Promise<void> {
   const expiresAt = new Date(Date.now() + SESSION_DURATION);
   const token = await encrypt({ userId, username });
   const cookieStore = await cookies();
@@ -44,9 +44,9 @@ export const getSession = cache(async (): Promise<SessionUser | null> => {
   if (!payload) return null;
 
   // HARDCODED BYPASS USER FOR TESTING
-  if (payload.userId === 9999) {
+  if (payload.userId === '9999') {
     return {
-      id: 9999,
+      id: '9999',
       username: 'testadmin',
       email: 'testadmin@bank.com',
       full_name: 'Test Admin',
@@ -58,33 +58,39 @@ export const getSession = cache(async (): Promise<SessionUser | null> => {
   // Fetch full user from Supabase
   const { data: user, error: userError } = await supabase
     .from('users')
-    .select('id, username, email, full_name, is_active')
+    .select('id, employee_code, email, full_name, status')
     .eq('id', payload.userId)
     .single();
 
-  if (userError || !user || !user.is_active) return null;
+  if (userError || !user || user.status !== 'active') {
+    return null;
+  }
 
-  // Fetch roles
+  // Fetch roles and permissions via JOIN
   const { data: roleRows, error: roleError } = await supabase
     .from('user_roles')
-    .select('roles(name, permissions)')
+    .select(`
+      roles (
+        role_code,
+        role_permissions (
+          permissions (
+            permission_code
+          )
+        )
+      )
+    `)
     .eq('user_id', user.id);
 
-  if (roleError) return null;
+  if (roleError || !roleRows) return null;
 
-  const roles = (roleRows || []).map((row: any) => row.roles?.name as UserRole).filter(Boolean);
-  const permissions = (roleRows || []).flatMap((row: any) => {
-    try { 
-      return typeof row.roles?.permissions === 'string' 
-        ? JSON.parse(row.roles.permissions) 
-        : (row.roles?.permissions || []); 
-    }
-    catch { return []; }
-  });
+  const roles = roleRows.map((row: any) => row.roles?.role_code as UserRole).filter(Boolean);
+  const permissions = roleRows.flatMap((row: any) => 
+    row.roles?.role_permissions?.map((rp: any) => rp.permissions?.permission_code) || []
+  );
 
   return {
     id: user.id,
-    username: user.username,
+    username: user.employee_code,
     email: user.email,
     full_name: user.full_name,
     roles: [...new Set(roles)],

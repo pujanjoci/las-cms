@@ -2,7 +2,7 @@ import { getSession } from '@/lib/auth';
 import { supabase } from '@/lib/db';
 import { requirePermission, PERMISSIONS } from '@/lib/rbac';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Users, UserPlus, Mail, Shield, Building, Clock, Edit2 } from 'lucide-react';
+import { Users, UserPlus, Mail, Shield, Building, Clock, Edit2, Search, Hash, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { DeleteUserButton } from './delete-user-button';
 
@@ -34,36 +34,103 @@ export default async function UsersPage() {
     console.error('Error fetching users:', error);
   }
 
+  const totalUsers = users?.length || 0;
+  const activeUsers = users?.filter(u => u.is_active === 1 || u.is_active === true).length || 0;
+  const inactiveUsers = totalUsers - activeUsers;
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8">
+      {/* ── Page Header ─────────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-display font-bold text-primary text-blue-900">User Management</h1>
-          <p className="text-sm text-slate-500 mt-1">Manage system users, roles, and access permissions.</p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Users className="h-5 w-5 text-primary" />
+            </div>
+            <h1 className="text-2xl font-display font-extrabold text-slate-900 tracking-tight">
+              User Management
+            </h1>
+          </div>
+          <p className="text-sm text-slate-500 ml-[3.25rem]">
+            Manage system users, roles, and access permissions across the portal.
+          </p>
         </div>
-        <Link href="/settings/users/new" className="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
-          <UserPlus className="h-4 w-4" />
+        <Link 
+          href="/settings/users/new" 
+          className="group inline-flex items-center gap-2.5 bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0"
+        >
+          <UserPlus className="h-4 w-4 transition-transform group-hover:scale-110" />
           Add New User
         </Link>
       </div>
 
-      <div className="bg-white rounded-xl shadow-card border border-border overflow-hidden">
+      {/* ── Stats Summary Row ───────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white rounded-2xl border border-slate-100 p-5 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="h-12 w-12 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
+            <Users className="h-6 w-6 text-indigo-600" />
+          </div>
+          <div>
+            <p className="text-2xl font-extrabold text-slate-900 tracking-tight">{totalUsers}</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Total Users</p>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border border-slate-100 p-5 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="h-12 w-12 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+            <Shield className="h-6 w-6 text-emerald-600" />
+          </div>
+          <div>
+            <p className="text-2xl font-extrabold text-slate-900 tracking-tight">{activeUsers}</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Active</p>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border border-slate-100 p-5 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="h-12 w-12 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+            <Clock className="h-6 w-6 text-amber-600" />
+          </div>
+          <div>
+            <p className="text-2xl font-extrabold text-slate-900 tracking-tight">{inactiveUsers}</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Inactive</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Users Table ─────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        {/* Table Header Bar */}
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+            All System Users
+          </p>
+          <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-wider">
+            {totalUsers} {totalUsers === 1 ? 'Record' : 'Records'}
+          </span>
+        </div>
+
         <div className="overflow-x-auto">
-          <table className="cms-table w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-border">
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600">User Details</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600">Branch & Dept</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600">Role</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600">Status</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600">Last Login</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600">Actions</th>
+              <tr className="border-b border-slate-100">
+                <th className="px-6 py-3.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">User Details</th>
+                <th className="px-6 py-3.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">Branch & Dept</th>
+                <th className="px-6 py-3.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">Role</th>
+                <th className="px-6 py-3.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">Status</th>
+                <th className="px-6 py-3.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400">Last Login</th>
+                <th className="px-6 py-3.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-slate-400 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-slate-50">
               {(!users || users.length === 0) ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-12 text-slate-400">No users found in the database.</td>
+                  <td colSpan={6} className="text-center py-16">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="h-14 w-14 rounded-2xl bg-slate-50 flex items-center justify-center">
+                        <Users className="h-7 w-7 text-slate-300" />
+                      </div>
+                      <p className="text-sm font-bold text-slate-400">No users found</p>
+                      <p className="text-xs text-slate-400">Create a new user to get started.</p>
+                    </div>
+                  </td>
                 </tr>
               ) : (
                 users.map((u) => {
@@ -72,62 +139,77 @@ export default async function UsersPage() {
                   const canEdit = isSuperAdmin || !isUserAdminOrSuper;
 
                   return (
-                    <tr key={u.id} className="hover:bg-slate-50/50 transition-colors">
+                    <tr key={u.id} className="group hover:bg-primary/[0.015] transition-colors duration-150">
+                      {/* User Details */}
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-primary font-bold">
-                            {u.full_name?.charAt(0)}
+                        <div className="flex items-center gap-3.5">
+                          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-primary font-extrabold text-sm tracking-tight flex-shrink-0 border border-primary/10">
+                            {u.full_name?.charAt(0)?.toUpperCase()}
                           </div>
-                          <div>
-                            <p className="text-sm font-bold text-primary">{u.full_name}</p>
-                            <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">
-                              <Mail className="h-3 w-3" />
-                              {u.email}
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold text-slate-800 truncate">{u.full_name}</p>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <Mail className="h-3 w-3 text-slate-400 flex-shrink-0" />
+                              <span className="text-xs text-slate-500 truncate">{u.email}</span>
                             </div>
-                            <p className="text-[10px] font-mono text-slate-400">@{u.username}</p>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <Hash className="h-3 w-3 text-slate-300 flex-shrink-0" />
+                              <span className="text-[10px] font-mono text-slate-400 tracking-wide">{u.employee_code || u.username}</span>
+                            </div>
                           </div>
                         </div>
                       </td>
+
+                      {/* Branch & Designation */}
                       <td className="px-6 py-4">
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
-                            <Building className="h-3 w-3 text-slate-400" />
-                            {u.branch || 'N/A'}
+                        <div className="flex flex-col gap-0.5">
+                          <div className="flex items-center gap-1.5">
+                            <Building className="h-3.5 w-3.5 text-slate-400" />
+                            <span className="text-xs font-semibold text-slate-700">{u.branch || 'N/A'}</span>
                           </div>
-                          <div className="text-[11px] text-slate-500 italic pl-4">
-                            {u.designation || 'Staff'}
-                          </div>
+                          <span className="text-[11px] text-slate-500 pl-5">{u.designation || 'Staff'}</span>
                         </div>
                       </td>
+
+                      {/* Roles */}
                       <td className="px-6 py-4">
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap gap-1.5">
                           {roles.length > 0 ? (
                             roles.map(r => (
-                              <span key={r} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-100 uppercase">
+                              <span 
+                                key={r} 
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary/5 text-primary text-[10px] font-bold border border-primary/10 uppercase tracking-wider"
+                              >
                                 <Shield className="h-2.5 w-2.5" />
-                                {r.replace('_', ' ')}
+                                {r.replace(/_/g, ' ')}
                               </span>
                             ))
                           ) : (
-                            <span className="text-xs text-slate-400 italic">No Role Assigned</span>
+                            <span className="text-xs text-slate-400 italic">No Role</span>
                           )}
                         </div>
                       </td>
+
+                      {/* Status */}
                       <td className="px-6 py-4">
-                        <StatusBadge status={u.is_active ? 'active' : 'inactive'} />
+                        <StatusBadge status={u.is_active === 1 || u.is_active === true ? 'active' : 'inactive'} />
                       </td>
+
+                      {/* Last Login */}
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                          <Clock className="h-3.5 w-3.5 text-slate-400" />
-                          {u.last_login ? new Date(u.last_login).toLocaleString() : 'Never'}
+                          <Clock className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
+                          <span>{u.last_login ? new Date(u.last_login).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Never'}</span>
                         </div>
                       </td>
+
+                      {/* Actions */}
                       <td className="px-6 py-4">
-                        <div className="flex flex-col gap-2">
+                        <div className="flex items-center justify-end gap-2">
                           {canEdit ? (
                             <Link 
                               href={`/settings/users/${u.id}/edit`}
-                              className="text-xs font-bold flex items-center gap-1 transition-colors w-fit text-accent hover:text-accent-dark"
+                              className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-dark bg-primary/5 hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-all duration-200"
                               title="Edit User"
                             >
                               <Edit2 className="h-3 w-3" />
@@ -136,7 +218,7 @@ export default async function UsersPage() {
                           ) : (
                             <button 
                               disabled
-                              className="text-xs font-bold flex items-center gap-1 transition-colors w-fit text-slate-300 cursor-not-allowed"
+                              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-300 bg-slate-50 px-3 py-1.5 rounded-lg cursor-not-allowed"
                               title="Only Super Admins can edit admin accounts"
                             >
                               <Edit2 className="h-3 w-3" />

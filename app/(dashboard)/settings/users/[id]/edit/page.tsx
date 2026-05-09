@@ -2,7 +2,7 @@ import { getSession } from '@/lib/auth';
 import { supabase } from '@/lib/db';
 import { requirePermission, PERMISSIONS } from '@/lib/rbac';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Edit2, ShieldAlert, Info } from 'lucide-react';
 import { EditUserForm } from './edit-user-form';
 import { notFound, redirect } from 'next/navigation';
 
@@ -42,12 +42,29 @@ export default async function EditUserPage(props: { params: Promise<{ id: string
   if (isTargetAdmin && !isSuperAdmin) {
     return (
       <div className="max-w-2xl mx-auto space-y-6">
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-800">
-          <h2 className="font-bold">Access Denied</h2>
-          <p className="text-sm mt-1">You do not have permission to edit Administrator accounts.</p>
-          <Link href="/settings/users" className="text-sm font-bold text-red-600 underline mt-3 inline-block">
-            Return to User Management
-          </Link>
+        <Link 
+          href="/settings/users" 
+          className="group inline-flex items-center gap-2 text-sm text-slate-400 hover:text-primary transition-colors font-bold"
+        >
+          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+          Back to User Management
+        </Link>
+        <div className="bg-white rounded-2xl border border-red-100 shadow-sm p-8">
+          <div className="flex flex-col items-center text-center gap-4">
+            <div className="h-14 w-14 rounded-2xl bg-red-50 flex items-center justify-center">
+              <ShieldAlert className="h-7 w-7 text-red-500" />
+            </div>
+            <div>
+              <h2 className="text-lg font-display font-extrabold text-slate-900">Access Denied</h2>
+              <p className="text-sm text-slate-500 mt-1.5">You do not have permission to edit Administrator accounts.</p>
+            </div>
+            <Link 
+              href="/settings/users" 
+              className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-primary-dark bg-primary/5 hover:bg-primary/10 px-5 py-2.5 rounded-xl transition-all"
+            >
+              Return to User Management
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -64,22 +81,50 @@ export default async function EditUserPage(props: { params: Promise<{ id: string
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <Link href="/settings/users" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-primary transition-colors mb-4 font-bold">
-          <ArrowLeft className="h-4 w-4" />
-          Back to User Management
-        </Link>
-        <h1 className="text-2xl font-display font-bold text-primary text-blue-900">Edit User</h1>
-        <p className="text-sm text-slate-500 mt-1">Update account details, role assignments, or reset the password.</p>
-      </div>
+      {/* Back Navigation */}
+      <Link 
+        href="/settings/users" 
+        className="group inline-flex items-center gap-2 text-sm text-slate-400 hover:text-primary transition-colors font-bold"
+      >
+        <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+        Back to User Management
+      </Link>
 
-      <div className="bg-white rounded-xl shadow-card border border-border p-6 md:p-8">
-        <EditUserForm 
-          user={user} 
-          currentRoleId={currentRoleId} 
-          roles={roles || []} 
-          isSuperAdmin={isSuperAdmin} 
-        />
+      {/* Page Header Card */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="px-6 py-5 sm:px-8 sm:py-6 border-b border-slate-100 bg-gradient-to-r from-primary/[0.03] to-transparent">
+          <div className="flex items-center gap-3.5">
+            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-primary font-extrabold text-lg flex-shrink-0 border border-primary/10">
+              {user.full_name?.charAt(0)?.toUpperCase()}
+            </div>
+            <div>
+              <h1 className="text-xl font-display font-extrabold text-slate-900 tracking-tight">
+                Edit User
+              </h1>
+              <p className="text-sm text-slate-500 mt-0.5">
+                Editing <span className="font-bold text-slate-700">{user.full_name}</span> — {user.employee_code || user.username}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Info Banner */}
+        <div className="mx-6 sm:mx-8 mt-6 p-3.5 rounded-xl bg-amber-50/60 border border-amber-100/80 flex items-start gap-3">
+          <Info className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-amber-700/80 font-medium leading-relaxed">
+            Changes to role assignments take effect immediately on the user&apos;s next session. Leave the password field blank to keep it unchanged.
+          </p>
+        </div>
+
+        {/* Form Body */}
+        <div className="p-6 sm:p-8">
+          <EditUserForm 
+            user={user} 
+            currentRoleId={currentRoleId} 
+            roles={roles || []} 
+            isSuperAdmin={isSuperAdmin} 
+          />
+        </div>
       </div>
     </div>
   );

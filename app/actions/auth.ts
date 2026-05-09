@@ -22,18 +22,18 @@ export async function loginAction(prevState: any, formData: FormData) {
 
   // HARDCODED BYPASS USER FOR TESTING
   if (username === 'testadmin' && password === 'test123') {
-    await createSession(9999, 'testadmin');
+    await createSession('9999', 'testadmin');
     redirect('/dashboard');
   }
 
   // Find user
   const { data: user, error } = await supabase
     .from('users')
-    .select('id, username, password_hash, is_active')
-    .eq('username', username)
+    .select('id, employee_code, password_hash, status')
+    .eq('employee_code', username)
     .single();
 
-  if (error || !user || !user.is_active) {
+  if (error || !user || user.status !== 'active') {
     return { message: 'Invalid credentials or inactive account' };
   }
 
@@ -51,11 +51,11 @@ export async function loginAction(prevState: any, formData: FormData) {
   // Update last login
   await supabase
     .from('users')
-    .update({ last_login: new Date().toISOString() })
+    .update({ last_login_at: new Date().toISOString() })
     .eq('id', user.id);
 
   // Create session
-  await createSession(user.id, user.username);
+  await createSession(user.id, user.employee_code);
   
   await auditLog({
     entityType: 'user',
