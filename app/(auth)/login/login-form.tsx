@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useActionState } from 'react';
 import { loginAction } from '@/app/actions/auth';
 import { LogIn, User, KeyRound, AlertCircle, Eye, EyeOff } from 'lucide-react';
