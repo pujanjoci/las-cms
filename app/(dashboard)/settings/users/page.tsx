@@ -17,22 +17,53 @@ export default async function UsersPage() {
   requirePermission(session, PERMISSIONS.USER_MANAGE);
   const isSuperAdmin = session.roles.includes('super_admin');
 
-  // Fetch all users with their roles
-  const { data: users, error } = await supabase
-    .from('users')
-    .select(`
-      *,
-      user_roles!user_roles_user_id_fkey (
-        roles (
-          name
-        )
-      )
-    `)
-    .order('created_at', { ascending: false });
+  // Fetch users, user_roles, and roles in parallel (flat queries — no FK joins)
+  const [usersRes, userRolesRes, rolesRes] = await Promise.all([
+    supabase.from('users').select('*').order('created_at', { ascending: false }),
+    supabase.from('user_roles').select('user_id, role_id'),
+    supabase.from('roles').select('*'),
+  ]);
 
-  if (error) {
-    console.error('Error fetching users:', error);
+  if (usersRes.error) console.error('Error fetching users:', JSON.stringify(usersRes.error));
+  if (userRolesRes.error) console.error('Error fetching user_roles:', JSON.stringify(userRolesRes.error));
+  if (rolesRes.error) console.error('Error fetching roles:', JSON.stringify(rolesRes.error));
+
+  // Build role lookup: role_id → role name
+  const roleLookup: Record<string | number, string> = {};
+  for (const r of rolesRes.data || []) {
+    // Try common column names: name, role_name, role_code
+    roleLookup[r.id] = r.name || r.role_name || r.role_code || `Role #${r.id}`;
   }
+
+  // Build user → role names map
+  const roleMap: Record<string, string[]> = {};
+  for (const ur of userRolesRes.data || []) {
+    const userId = String(ur.user_id);
+    const roleName = roleLookup[ur.role_id];
+    if (roleName) {
+      if (!roleMap[userId]) roleMap[userId] = [];
+      roleMap[userId].push(roleName);
+    }
+  }
+
+  // Merge roles into user objects
+  const allUsers = (usersRes.data || []).map(u => ({
+    ...u,
+    _roles: roleMap[u.id] || [],
+  }));
+
+  // Hide super_admin users from regular admins
+  // Fallback: if role data failed to load, use username/role-name heuristic
+  const rolesLoaded = !userRolesRes.error && !rolesRes.error;
+  const users = isSuperAdmin 
+    ? allUsers 
+    : allUsers.filter(u => {
+        // Primary check: role-based filtering
+        if (u._roles.includes('super_admin')) return false;
+        // Fallback when roles data couldn't be loaded — hide obvious super_admin accounts
+        if (!rolesLoaded && (u.username === 'superadmin' || u.username === 'super_admin')) return false;
+        return true;
+      });
 
   const totalUsers = users?.length || 0;
   const activeUsers = users?.filter(u => u.is_active === 1 || u.is_active === true).length || 0;
@@ -134,7 +165,7 @@ export default async function UsersPage() {
                 </tr>
               ) : (
                 users.map((u) => {
-                  const roles = (u.user_roles as any[])?.map(ur => ur.roles?.name).filter(Boolean) || [];
+                  const roles = u._roles || [];
                   const isUserAdminOrSuper = roles.includes('admin') || roles.includes('super_admin');
                   const canEdit = isSuperAdmin || !isUserAdminOrSuper;
 
@@ -175,7 +206,7 @@ export default async function UsersPage() {
                       <td className="px-6 py-4">
                         <div className="flex flex-wrap gap-1.5">
                           {roles.length > 0 ? (
-                            roles.map(r => (
+                            roles.map((r: string) => (
                               <span 
                                 key={r} 
                                 className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary/5 text-primary text-[10px] font-bold border border-primary/10 uppercase tracking-wider"

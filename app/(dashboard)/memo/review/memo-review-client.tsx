@@ -5,7 +5,7 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { FileText, CheckCircle, XCircle, Eye, Loader2, X, Trash2 } from 'lucide-react';
 import { updateMemoStatusAction, deleteMemoAction } from '@/app/actions/memo';
 
-export function MemoReviewClient({ memos, isApprover, currentUserId }: { memos: any[], isApprover: boolean, currentUserId: number }) {
+export function MemoReviewClient({ memos, isApprover, currentUserId }: { memos: any[], isApprover: boolean, currentUserId: string }) {
   const [isPending, startTransition] = useTransition();
   const [selectedMemo, setSelectedMemo] = useState<any | null>(null);
   const [memoToDelete, setMemoToDelete] = useState<string | null>(null);

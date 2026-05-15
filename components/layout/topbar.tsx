@@ -1,10 +1,12 @@
 'use client';
 
-import { Bell, Search, Menu, User, LogOut } from 'lucide-react';
+import { Search, Menu, User, LogOut } from 'lucide-react';
 import type { SessionUser } from '@/lib/types';
 import { useSidebar } from './sidebar-context';
 import { logoutAction } from '@/app/actions/auth';
 import { useActionState } from 'react';
+import Link from 'next/link';
+import { NotificationBell } from './notification-bell';
 
 interface TopbarProps {
   user: SessionUser;
@@ -54,10 +56,7 @@ export function Topbar({ user }: TopbarProps) {
         <div className="h-6 w-px bg-border hidden sm:block"></div>
 
         <div className="flex items-center gap-2 md:gap-4">
-          <button className="relative p-2 text-text-secondary hover:text-primary transition-all rounded-xl hover:bg-slate-50 group">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white animate-pulse"></span>
-          </button>
+          <NotificationBell />
 
           <form action={formAction}>
             <button 
@@ -69,9 +68,13 @@ export function Topbar({ user }: TopbarProps) {
             </button>
           </form>
           
-          <div className="md:hidden h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs border border-primary/20">
-            {user.full_name.charAt(0)}
-          </div>
+          <Link href="/profile" className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs border border-primary/20 overflow-hidden hover:ring-2 hover:ring-primary/50 transition-all">
+            {user.avatar_url ? (
+              <img src={user.avatar_url} alt={user.full_name} className="h-full w-full object-cover" />
+            ) : (
+              user.full_name.charAt(0)
+            )}
+          </Link>
         </div>
       </div>
     </header>

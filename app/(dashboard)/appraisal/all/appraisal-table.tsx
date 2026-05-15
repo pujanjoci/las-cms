@@ -2,11 +2,12 @@
 
 import { useState, useMemo } from 'react';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Search, Filter, ArrowRight, MoreHorizontal, X } from 'lucide-react';
+import { Search, Filter, ArrowRight, MoreHorizontal, X, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { deleteAppraisalAction } from '@/app/actions/appraisal';
 
 type CaseItem = {
-  id: number;
+  id: string;
   proposal_number: string;
   borrower_name: string;
   borrower_type: string;
@@ -20,7 +21,17 @@ export function AppraisalTable({ cases }: { cases: CaseItem[] }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const PAGE_SIZE = 10;
+
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    if (confirm('Are you sure you want to delete this appraisal case?')) {
+      setIsDeleting(id);
+      await deleteAppraisalAction(id);
+      setIsDeleting(null);
+    }
+  };
 
   const filteredCases = useMemo(() => {
     let result = cases;
@@ -134,9 +145,26 @@ export function AppraisalTable({ cases }: { cases: CaseItem[] }) {
                       {new Date(p.created_at).toLocaleDateString('en-NP')}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Link href={`/appraisal/${p.id}`} className="p-2 text-slate-400 hover:text-primary transition-all hover:translate-x-1 inline-block bg-slate-50 group-hover:bg-white rounded-lg border border-transparent group-hover:border-slate-100">
-                        <ArrowRight className="h-4 w-4" />
-                      </Link>
+                      <div className="flex items-center justify-end gap-2">
+                        <Link href={`/appraisal/${p.id}`} className="p-2 text-slate-400 hover:text-indigo-600 transition-colors bg-slate-50 hover:bg-indigo-50 rounded-lg border border-transparent" title="View">
+                          <ArrowRight className="h-4 w-4" />
+                        </Link>
+                        <button className="p-2 text-slate-400 hover:text-emerald-600 transition-colors bg-slate-50 hover:bg-emerald-50 rounded-lg border border-transparent" title="Edit" onClick={(e) => { e.preventDefault(); alert('Edit view under construction.'); }}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                        </button>
+                        <button 
+                          onClick={(e) => handleDelete(p.id, e)}
+                          disabled={isDeleting === p.id}
+                          className="p-2 text-slate-400 hover:text-rose-600 transition-colors bg-slate-50 hover:bg-rose-50 rounded-lg border border-transparent disabled:opacity-50" 
+                          title="Delete"
+                        >
+                          {isDeleting === p.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                          )}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

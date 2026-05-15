@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS eligible_scripts (
 CREATE TABLE IF NOT EXISTS appraisal_cases (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   case_number         VARCHAR(50) NOT NULL UNIQUE,
-  borrower_id         INTEGER REFERENCES borrowers(id),
+  borrower_id    TEXT NOT NULL REFERENCES borrowers(id),
   
   -- Step 1 & 2 data (Borrower & Financial)
   proposed_limit      NUMERIC(15, 2) NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS appraisal_cases (
   ltv_ratio_pct        NUMERIC(5, 2) NOT NULL DEFAULT 0,
   
   initiator_remarks    TEXT,
-  created_by           INTEGER NOT NULL REFERENCES users(id),
+  created_by           TEXT NOT NULL REFERENCES users(id),
   created_at           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -84,10 +84,10 @@ CREATE TABLE IF NOT EXISTS credit_memos (
   
   status              VARCHAR(50) NOT NULL DEFAULT 'draft' CHECK(status IN ('draft', 'pending_review', 'under_review', 'approved', 'rejected')),
   review_remarks      TEXT,
-  reviewed_by         INTEGER REFERENCES users(id),
+  reviewed_by         TEXT REFERENCES users(id),
   reviewed_at         TIMESTAMP WITH TIME ZONE,
   
-  created_by           INTEGER NOT NULL REFERENCES users(id),
+  created_by           TEXT NOT NULL REFERENCES users(id),
   created_at           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

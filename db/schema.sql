@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS roles (
 
 -- ── Users ─────────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS users (
-  id            SERIAL PRIMARY KEY,
+  id            TEXT PRIMARY KEY,
   username      VARCHAR(255) NOT NULL UNIQUE,
   email         VARCHAR(255) NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
@@ -29,16 +29,16 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- ── User Roles (M:M) ──────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS user_roles (
-  user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   role_id    INTEGER NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
-  assigned_by INTEGER REFERENCES users(id),
+  assigned_by TEXT REFERENCES users(id),
   assigned_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (user_id, role_id)
 );
 
 -- ── Borrowers ─────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS borrowers (
-  id                   SERIAL PRIMARY KEY,
+  id                   TEXT PRIMARY KEY,
   name                 VARCHAR(255) NOT NULL,
   type                 VARCHAR(50) NOT NULL CHECK(type IN ('individual','proprietorship','partnership','private_limited','public_limited','cooperative','ngo')),
   pan_number           VARCHAR(100) NOT NULL UNIQUE,
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS borrowers (
   number_of_employees  INTEGER,
   status               VARCHAR(50) NOT NULL DEFAULT 'active' CHECK(status IN ('active','inactive','blacklisted','under_review')),
   nrb_classification   VARCHAR(50) DEFAULT 'pass',
-  created_by           INTEGER NOT NULL REFERENCES users(id),
+  created_by           TEXT NOT NULL REFERENCES users(id),
   created_at           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -65,13 +65,14 @@ CREATE TABLE IF NOT EXISTS borrowers (
 -- ── KYC Documents ─────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS kyc_documents (
   id             SERIAL PRIMARY KEY,
-  borrower_id    INTEGER NOT NULL REFERENCES borrowers(id) ON DELETE CASCADE,
+  borrower_id    TEXT NOT NULL REFERENCES borrowers(id) ON DELETE CASCADE,
   document_type  VARCHAR(100) NOT NULL,
   file_name      VARCHAR(255) NOT NULL,
   file_path      TEXT NOT NULL,
   storage_bucket VARCHAR(100) NOT NULL DEFAULT 'kyc-documents',
   status         VARCHAR(50) NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','verified','rejected','expired')),
-  verified_by    INTEGER REFERENCES users(id),
+  uploaded_by    TEXT REFERENCES users(id),
+  verified_by    TEXT REFERENCES users(id),
   verified_at    TIMESTAMP WITH TIME ZONE,
   expiry_date    DATE,
   remarks        TEXT,
@@ -81,7 +82,7 @@ CREATE TABLE IF NOT EXISTS kyc_documents (
 -- ── Facilities ────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS facilities (
   id               SERIAL PRIMARY KEY,
-  borrower_id      INTEGER NOT NULL REFERENCES borrowers(id),
+  borrower_id    TEXT NOT NULL REFERENCES borrowers(id),
   facility_type    VARCHAR(100) NOT NULL,
   amount           NUMERIC(15, 2) NOT NULL,
   currency         VARCHAR(10) NOT NULL DEFAULT 'NPR',
@@ -100,7 +101,7 @@ CREATE TABLE IF NOT EXISTS facilities (
 -- ── Proposals ─────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS proposals (
   id                SERIAL PRIMARY KEY,
-  borrower_id       INTEGER NOT NULL REFERENCES borrowers(id),
+  borrower_id    TEXT NOT NULL REFERENCES borrowers(id),
   facility_id       INTEGER REFERENCES facilities(id),
   proposal_number   VARCHAR(100) NOT NULL UNIQUE,
   proposal_type     VARCHAR(50) NOT NULL DEFAULT 'fresh',
@@ -114,7 +115,7 @@ CREATE TABLE IF NOT EXISTS proposals (
   status            VARCHAR(50) NOT NULL DEFAULT 'draft',
   priority          VARCHAR(50) DEFAULT 'normal',
   target_close_date DATE,
-  created_by        INTEGER NOT NULL REFERENCES users(id),
+  created_by           TEXT NOT NULL REFERENCES users(id),
   created_at        TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at        TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -126,7 +127,7 @@ CREATE TABLE IF NOT EXISTS proposal_versions (
   version_number INTEGER NOT NULL,
   snapshot       JSONB NOT NULL,   -- JSON of full proposal state
   change_summary TEXT,
-  created_by     INTEGER NOT NULL REFERENCES users(id),
+  created_by           TEXT NOT NULL REFERENCES users(id),
   created_at     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(proposal_id, version_number)
 );
@@ -147,7 +148,7 @@ CREATE TABLE IF NOT EXISTS risk_scores (
   group_exposure_pct  NUMERIC(5, 2) NOT NULL DEFAULT 0,
   hard_stops          JSONB NOT NULL DEFAULT '[]'::jsonb, -- JSON
   decision            VARCHAR(50) NOT NULL CHECK(decision IN ('approve','review','decline')),
-  scored_by           INTEGER NOT NULL REFERENCES users(id),
+  scored_by           TEXT NOT NULL REFERENCES users(id),
   scored_at           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -158,7 +159,7 @@ CREATE TABLE IF NOT EXISTS risk_overrides (
   original_grade VARCHAR(5) NOT NULL,
   override_grade VARCHAR(5) NOT NULL,
   justification  TEXT NOT NULL,
-  approved_by    INTEGER NOT NULL REFERENCES users(id),
+  approved_by    TEXT NOT NULL REFERENCES users(id),
   approved_at    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -168,7 +169,7 @@ CREATE TABLE IF NOT EXISTS workflow_instances (
   proposal_id    INTEGER NOT NULL UNIQUE REFERENCES proposals(id),
   current_stage  VARCHAR(50) NOT NULL DEFAULT 'draft',
   previous_stage VARCHAR(50),
-  assigned_to    INTEGER REFERENCES users(id),
+  assigned_to    TEXT REFERENCES users(id),
   escalated      INTEGER NOT NULL DEFAULT 0,
   due_date       DATE,
   created_at     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -182,7 +183,7 @@ CREATE TABLE IF NOT EXISTS workflow_actions (
   from_stage  VARCHAR(50) NOT NULL,
   to_stage    VARCHAR(50) NOT NULL,
   action_type VARCHAR(50) NOT NULL CHECK(action_type IN ('submit','forward','approve','return','query','escalate','cancel')),
-  actor_id    INTEGER NOT NULL REFERENCES users(id),
+  actor_id    TEXT NOT NULL REFERENCES users(id),
   remarks     TEXT NOT NULL DEFAULT '',
   created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -195,7 +196,7 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   action       VARCHAR(100) NOT NULL,
   before_value JSONB,
   after_value  JSONB,
-  actor_id     INTEGER NOT NULL REFERENCES users(id),
+  actor_id    TEXT NOT NULL REFERENCES users(id),
   ip_address   VARCHAR(45),
   user_agent   TEXT,
   created_at   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -209,7 +210,7 @@ CREATE TABLE IF NOT EXISTS settings (
   category    VARCHAR(100) NOT NULL DEFAULT 'general',
   label       VARCHAR(255) NOT NULL,
   description TEXT,
-  updated_by  INTEGER REFERENCES users(id),
+  updated_by  TEXT REFERENCES users(id),
   updated_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

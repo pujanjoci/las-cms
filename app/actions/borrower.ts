@@ -1,5 +1,6 @@
 'use server';
 
+import { randomUUID } from 'crypto';
 import { borrowerSchema } from '@/lib/validators';
 import { supabase } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
@@ -47,9 +48,17 @@ export async function createBorrower(prevState: any, formData: FormData) {
   let newId: string;
 
   try {
+    // Generate id (text PK, no auto-gen) and borrower_code (NOT NULL)
+    const generatedId = randomUUID();
+    const codePrefix = 'BRW';
+    const codeSuffix = Date.now().toString(36).toUpperCase();
+    const borrowerCode = `${codePrefix}-${codeSuffix}`;
+
     const { data: inserted, error } = await supabase
       .from('borrowers')
       .insert({
+        id: generatedId,
+        borrower_code: borrowerCode,
         name: payload.name,
         type: payload.type,
         pan_number: payload.pan_number,
@@ -64,7 +73,7 @@ export async function createBorrower(prevState: any, formData: FormData) {
         annual_turnover: payload.annual_turnover || null,
         years_in_business: payload.years_in_business || null,
         number_of_employees: payload.number_of_employees || null,
-        created_by: session.id
+        created_by: String(session.id)
       })
       .select('id')
       .single();

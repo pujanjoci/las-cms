@@ -9,26 +9,51 @@ export default async function AllAppraisalsPage() {
   const session = await getSession();
   if (!session) return null;
 
-  // Fetch all proposals from the database with borrower info
-  const { data: proposals, error } = await supabase
-    .from('proposals')
-    .select('id, proposal_number, amount, status, created_at, borrowers(name, type)')
+  // Fetch all appraisal cases from the database with borrower info
+  // Fetch appraisal cases
+  const { data: appraisals, error } = await supabase
+    .from('appraisal_cases')
+    .select('id, case_number, borrower_id, proposed_limit, status, created_at')
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching proposals:', error);
+    console.error('Failed to fetch appraisals:', error);
+    return <div><div className="bg-red-100 text-red-900 p-4 rounded-lg my-4">Error fetching appraisals: {error.message}</div></div>;
   }
 
-  const cases = (proposals || []).map(p => ({
-    id: p.id,
-    proposal_number: p.proposal_number,
-    borrower_name: (p.borrowers as any)?.name || 'Unknown',
-    borrower_type: (p.borrowers as any)?.type || 'individual',
-    amount: Number(p.amount) || 0,
-    ltv: 62.5, // Mocked until collateral valuation is wired
-    status: p.status,
-    created_at: p.created_at,
-  }));
+  // Fetch related borrowers manually to bypass foreign key issues
+  let borrowersData: Record<string, any> = {};
+  if (appraisals && appraisals.length > 0) {
+    const borrowerIds = [...new Set(appraisals.map(a => a.borrower_id).filter(Boolean))];
+    if (borrowerIds.length > 0) {
+      const { data: bData } = await supabase
+        .from('borrowers')
+        .select('id, name, type')
+        .in('id', borrowerIds);
+        
+      if (bData) {
+        bData.forEach(b => {
+          borrowersData[b.id] = b;
+        });
+      }
+    }
+  }
+
+  const cases = (appraisals || []).map(p => {
+    const b = borrowersData[p.borrower_id] || {};
+    return {
+      id: p.id,
+      proposal_number: p.case_number,
+      borrower_name: b.name || 'Unknown',
+      borrower_type: b.type || 'individual',
+      amount: Number(p.proposed_limit) || 0,
+      ltv: 62.5, // Mocked until collateral valuation is wired
+      status: p.status,
+      created_at: p.created_at,
+    };
+  });
+
+
 
   return (
     <div className="space-y-6">

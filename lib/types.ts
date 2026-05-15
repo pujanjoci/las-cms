@@ -14,10 +14,11 @@ export type KYCDocumentType = 'citizenship' | 'pan_certificate' | 'registration_
 export type DocumentStatus = 'pending' | 'verified' | 'rejected' | 'expired';
 
 export interface User {
-  id: number;
+  id: string;
   username: string;
   email: string;
   full_name: string;
+  avatar_url: string | null;
   is_active: boolean;
   mfa_enabled: boolean;
   created_at: string;
@@ -25,16 +26,17 @@ export interface User {
 }
 
 export interface SessionUser {
-  id: number;
+  id: string;
   username: string;
   email: string;
   full_name: string;
+  avatar_url: string | null;
   roles: UserRole[];
   permissions: string[];
 }
 
 export interface Borrower {
-  id: number;
+  id: string;
   name: string;
   type: BorrowerType;
   pan_number: string;
@@ -49,19 +51,19 @@ export interface Borrower {
   group_id: number | null;
   group_name: string | null;
   status: BorrowerStatus;
-  created_by: number;
+  created_by: string;
   created_at: string;
   updated_at: string;
 }
 
 export interface KYCDocument {
   id: number;
-  borrower_id: number;
+  borrower_id: string;
   document_type: KYCDocumentType;
   file_name: string;
   file_path: string;
   status: DocumentStatus;
-  verified_by: number | null;
+  verified_by: string | null;
   verified_at: string | null;
   expiry_date: string | null;
   remarks: string | null;
@@ -98,7 +100,7 @@ export interface CollateralData {
 
 export interface Facility {
   id: number;
-  borrower_id: number;
+  borrower_id: string;
   facility_type: FacilityType;
   currency: string;
   amount: number;
@@ -110,8 +112,8 @@ export interface Facility {
 
 export interface Proposal {
   id: number;
-  borrower_id: number;
-  facility_id: number | null;
+  borrower_id: string;
+  facility_id: string | null;
   proposal_number: string;
   proposal_type: string;
   amount: number;
@@ -120,7 +122,7 @@ export interface Proposal {
   financial_data: FinancialData | null;
   collateral_data: CollateralData | null;
   status: ProposalStatus;
-  created_by: number;
+  created_by: string;
   created_at: string;
   updated_at: string;
   borrower_name?: string;
@@ -137,7 +139,7 @@ export interface HardStop {
 
 export interface RiskScore {
   id: number;
-  proposal_id: number;
+  proposal_id: string;
   financial_score: number;
   business_score: number;
   management_score: number;
@@ -150,16 +152,16 @@ export interface RiskScore {
   group_exposure_pct: number;
   hard_stops: HardStop[];
   decision: RiskDecision;
-  scored_by: number;
+  scored_by: string;
   scored_at: string;
 }
 
 export interface WorkflowInstance {
   id: number;
-  proposal_id: number;
+  proposal_id: string;
   current_stage: ProposalStatus;
   previous_stage: ProposalStatus | null;
-  assigned_to: number | null;
+  assigned_to: string | null;
   assigned_to_name?: string;
   escalated: boolean;
   created_at: string;
@@ -168,11 +170,11 @@ export interface WorkflowInstance {
 
 export interface WorkflowActionRecord {
   id: number;
-  workflow_id: number;
+  workflow_id: string;
   from_stage: ProposalStatus;
   to_stage: ProposalStatus;
   action_type: WorkflowActionType;
-  actor_id: number;
+  actor_id: string;
   actor_name?: string;
   remarks: string;
   created_at: string;
@@ -181,11 +183,11 @@ export interface WorkflowActionRecord {
 export interface AuditLog {
   id: number;
   entity_type: string;
-  entity_id: number;
+  entity_id: string;
   action: string;
   before_value: Record<string, unknown> | null;
   after_value: Record<string, unknown> | null;
-  actor_id: number;
+  actor_id: string;
   actor_name?: string;
   ip_address: string | null;
   created_at: string;
@@ -198,7 +200,7 @@ export interface Setting {
   category: string;
   label: string;
   description: string | null;
-  updated_by: number | null;
+  updated_by: string | null;
   updated_at: string;
 }
 

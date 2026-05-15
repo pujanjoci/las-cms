@@ -22,7 +22,7 @@ export async function loginAction(prevState: any, formData: FormData) {
 
   // HARDCODED BYPASS USER FOR TESTING
   if (username === 'testadmin' && password === 'test123') {
-    await createSession('9999', 'testadmin');
+    await createSession(9999, 'testadmin');
     redirect('/dashboard');
   }
 
@@ -30,22 +30,25 @@ export async function loginAction(prevState: any, formData: FormData) {
   const { data: user, error } = await supabase
     .from('users')
     .select('id, employee_code, password_hash, status')
-    .eq('employee_code', username)
+    .or(`employee_code.ilike.${username},email.ilike.${username}`)
     .single();
 
+  console.log('Login attempt:', { username, userFound: !!user, error: error?.message, status: user?.status });
   if (error || !user || user.status !== 'active') {
-    return { message: 'Invalid credentials or inactive account' };
+    return { message: `Invalid credentials or inactive account (${error?.message || (user ? 'inactive' : 'not found')})` };
   }
 
   // Verify password
-  if (!verifyPassword(password, user.password_hash)) {
+  const isMatch = verifyPassword(password, user.password_hash);
+  console.log('Password match:', isMatch);
+  if (!isMatch) {
     await auditLog({
       entityType: 'user',
       entityId: user.id,
       action: 'failed_login',
       actorId: user.id,
     });
-    return { message: 'Invalid credentials' };
+    return { message: 'Invalid credentials (password mismatch)' };
   }
 
   // Update last login

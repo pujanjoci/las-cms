@@ -19,7 +19,7 @@ export function verifyPassword(password: string, hash: string): boolean {
 
 // ── Session Management ────────────────────────────────────────────────────────
 
-export async function createSession(userId: string, username: string): Promise<void> {
+export async function createSession(userId: number, username: string): Promise<void> {
   const expiresAt = new Date(Date.now() + SESSION_DURATION);
   const token = await encrypt({ userId, username });
   const cookieStore = await cookies();
@@ -44,12 +44,13 @@ export const getSession = cache(async (): Promise<SessionUser | null> => {
   if (!payload) return null;
 
   // HARDCODED BYPASS USER FOR TESTING
-  if (payload.userId === '9999') {
+  if (String(payload.userId) === '9999') {
     return {
       id: '9999',
       username: 'testadmin',
       email: 'testadmin@bank.com',
       full_name: 'Test Admin',
+      avatar_url: null,
       roles: ['super_admin'],
       permissions: Object.values(PERMISSIONS) as string[]
     };
@@ -58,7 +59,7 @@ export const getSession = cache(async (): Promise<SessionUser | null> => {
   // Fetch full user from Supabase
   const { data: user, error: userError } = await supabase
     .from('users')
-    .select('id, employee_code, email, full_name, status')
+    .select('id, employee_code, email, full_name, status, avatar_url')
     .eq('id', payload.userId)
     .single();
 
@@ -71,6 +72,7 @@ export const getSession = cache(async (): Promise<SessionUser | null> => {
     .from('user_roles')
     .select(`
       roles (
+        role_name,
         role_code,
         role_permissions (
           permissions (
@@ -81,8 +83,12 @@ export const getSession = cache(async (): Promise<SessionUser | null> => {
     `)
     .eq('user_id', user.id);
 
-  if (roleError || !roleRows) return null;
+  if (roleError || !roleRows) {
+    console.error('Failed to fetch user roles:', roleError);
+    return null;
+  }
 
+  // Use role_code (e.g. 'super_admin', 'admin') to match the RBAC permission mappings
   const roles = roleRows.map((row: any) => row.roles?.role_code as UserRole).filter(Boolean);
   const permissions = roleRows.flatMap((row: any) => 
     row.roles?.role_permissions?.map((rp: any) => rp.permissions?.permission_code) || []
@@ -93,6 +99,7 @@ export const getSession = cache(async (): Promise<SessionUser | null> => {
     username: user.employee_code,
     email: user.email,
     full_name: user.full_name,
+    avatar_url: user.avatar_url,
     roles: [...new Set(roles)],
     permissions: [...new Set(permissions)],
   };

@@ -21,7 +21,7 @@ export async function createUserAction(formData: FormData) {
     let employee_code = formData.get('employee_code') as string;
     const role_id = formData.get('role_id') as string;
 
-    if (!full_name || !email || !username || !password || !role_id) {
+    if (!full_name || !email || !password || !role_id) {
       return { error: 'Please fill in all required fields.' };
     }
 
@@ -34,12 +34,12 @@ export async function createUserAction(formData: FormData) {
     const isSuperAdmin = hasRole(session, 'super_admin');
     const { data: roleData } = await supabase
       .from('roles')
-      .select('name')
+      .select('role_code')
       .eq('id', parseInt(role_id, 10))
       .single();
 
     if (roleData) {
-      if ((roleData.name === 'admin' || roleData.name === 'super_admin') && !isSuperAdmin) {
+      if ((roleData.role_code === 'admin' || roleData.role_code === 'super_admin') && !isSuperAdmin) {
         return { error: 'Forbidden: You do not have permission to create Admin or Super Admin accounts.' };
       }
     }
@@ -51,7 +51,6 @@ export async function createUserAction(formData: FormData) {
     const { data: newUser, error: insertError } = await supabase
       .from('users')
       .insert({
-        username,
         email,
         password_hash,
         full_name,
@@ -151,17 +150,25 @@ export async function editUserAction(userId: string, formData: FormData) {
     const role_id = formData.get('role_id') as string;
     const is_active = formData.get('is_active') === 'on' ? 1 : 0;
 
-    if (!full_name || !email || !username || !role_id) {
+    if (!full_name || !email || !role_id) {
       return { error: 'Please fill in all required fields.' };
     }
 
-    // 3. Fetch the target user's current roles
+    // 3. Fetch the target user's current roles (flat queries)
     const { data: targetRoleRows } = await supabase
       .from('user_roles')
-      .select('roles(name)')
+      .select('role_id')
       .eq('user_id', userId);
-      
-    const targetRoles = (targetRoleRows || []).map((row: any) => row.roles?.name).filter(Boolean);
+    
+    const targetRoleIds = (targetRoleRows || []).map((row: any) => row.role_id);
+    
+    // Lookup role names
+    const { data: targetRolesData } = await supabase
+      .from('roles')
+      .select('id, role_code')
+      .in('id', targetRoleIds.length > 0 ? targetRoleIds : [-1]);
+    
+    const targetRoles = (targetRolesData || []).map((r: any) => r.role_code).filter(Boolean);
     const isTargetAdmin = targetRoles.includes('admin') || targetRoles.includes('super_admin');
 
     // 4. RBAC Check: Regular admins cannot edit admin/super_admin users
@@ -172,17 +179,16 @@ export async function editUserAction(userId: string, formData: FormData) {
     // 5. RBAC Check: Regular admins cannot assign admin/super_admin roles
     const { data: roleData } = await supabase
       .from('roles')
-      .select('name')
+      .select('role_code')
       .eq('id', parseInt(role_id, 10))
       .single();
 
-    if (roleData && (roleData.name === 'admin' || roleData.name === 'super_admin') && !isSuperAdmin) {
+    if (roleData && (roleData.role_code === 'admin' || roleData.role_code === 'super_admin') && !isSuperAdmin) {
       return { error: 'Forbidden: You do not have permission to assign Admin or Super Admin roles.' };
     }
 
     // 6. Prepare update payload
     const updatePayload: any = {
-      username,
       email,
       full_name,
       employee_code: employee_code || null,

@@ -152,8 +152,12 @@ export function Sidebar({ user }: SidebarProps) {
 
         <div className="p-4 bg-slate-50 border-t border-border mt-auto">
           <div className="flex items-center gap-3 mb-4 px-2">
-            <div className="h-10 w-10 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-primary font-bold text-base shadow-inner">
-              {user.full_name.charAt(0)}
+            <div className="h-10 w-10 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-primary font-bold text-base shadow-inner overflow-hidden">
+              {user.avatar_url ? (
+                <img src={user.avatar_url} alt={user.full_name} className="h-full w-full object-cover" />
+              ) : (
+                user.full_name.charAt(0)
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold truncate text-slate-800">{user.full_name}</p>

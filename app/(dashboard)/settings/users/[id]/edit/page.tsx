@@ -24,18 +24,24 @@ export default async function EditUserPage(props: { params: Promise<{ id: string
     redirect('/dashboard');
   }
 
-  // Fetch the target user's details
-  const { data: user, error: userError } = await supabase
-    .from('users')
-    .select('*, user_roles!user_roles_user_id_fkey(roles(id, name))')
-    .eq('id', targetUserId)
-    .single();
+  // Fetch user details + their roles (flat queries, no FK-hint joins)
+  const [userRes, userRolesRes, rolesListRes] = await Promise.all([
+    supabase.from('users').select('*').eq('id', targetUserId).single(),
+    supabase.from('user_roles').select('user_id, role_id').eq('user_id', targetUserId),
+    supabase.from('roles').select('*'),
+  ]);
 
-  if (userError || !user) {
+  if (userRes.error || !userRes.data) {
     return notFound();
   }
 
-  const targetRoles = (user.user_roles as any[])?.map(ur => ur.roles?.name).filter(Boolean) || [];
+  const user = userRes.data;
+  const allRoles = rolesListRes.data || [];
+
+  // Build role names for this user
+  const userRoleIds = (userRolesRes.data || []).map(ur => ur.role_id);
+  const targetRoles = allRoles.filter(r => userRoleIds.includes(r.id)).map(r => r.name || r.role_code);
+  const currentRoleId = userRoleIds[0] || '';
   const isTargetAdmin = targetRoles.includes('admin') || targetRoles.includes('super_admin');
 
   // RBAC check on page load: regular admins can't edit super admins
@@ -70,14 +76,10 @@ export default async function EditUserPage(props: { params: Promise<{ id: string
     );
   }
 
-  // Fetch available roles for the dropdown
-  const { data: roles } = await supabase
-    .from('roles')
-    .select('id, name')
-    .order('id', { ascending: true });
-
-  // Determine current role ID
-  const currentRoleId = (user.user_roles as any[])?.[0]?.roles?.id || '';
+  // Filter roles: admins can't see super_admin/admin options
+  const availableRoles = allRoles.filter(role => 
+    isSuperAdmin || (role.name !== 'admin' && role.name !== 'super_admin')
+  );
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -121,7 +123,7 @@ export default async function EditUserPage(props: { params: Promise<{ id: string
           <EditUserForm 
             user={user} 
             currentRoleId={currentRoleId} 
-            roles={roles || []} 
+            roles={availableRoles} 
             isSuperAdmin={isSuperAdmin} 
           />
         </div>

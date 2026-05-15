@@ -7,6 +7,7 @@ const sora = Sora({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
   display: "swap",
+  preload: false,
 });
 
 const dmSans = DM_Sans({
@@ -14,6 +15,7 @@ const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -34,8 +36,10 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${sora.variable} ${dmSans.variable} h-full`}
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning={true}
     >
-      <body className="min-h-full flex flex-col antialiased">{children}</body>
+      <body className="min-h-full flex flex-col antialiased" suppressHydrationWarning={true}>{children}</body>
     </html>
   );
 }
