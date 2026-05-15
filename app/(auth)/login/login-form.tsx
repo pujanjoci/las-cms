@@ -1,8 +1,6 @@
-'use client';
-
-import { useActionState } from 'react';
+import { useState, useActionState } from 'react';
 import { loginAction } from '@/app/actions/auth';
-import { LogIn, User, KeyRound, AlertCircle } from 'lucide-react';
+import { LogIn, User, KeyRound, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 const initialState = {
   message: '',
@@ -11,6 +9,7 @@ const initialState = {
 
 export default function LoginForm() {
   const [state, formAction, isPending] = useActionState(loginAction, initialState);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <form action={formAction} className="space-y-6 mt-8">
@@ -55,12 +54,24 @@ export default function LoginForm() {
           <input 
             id="password"
             name="password"
-            type="password" 
+            type={showPassword ? "text" : "password"} 
             autoComplete="current-password"
             required
-            className={`w-full pl-12 pr-4 py-3.5 bg-slate-50/80 border-2 rounded-xl text-slate-900 placeholder:text-slate-300 focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all duration-300 outline-none text-sm font-medium ${state.errors?.password ? 'border-red-200 focus:border-red-300 focus:ring-red-50' : 'border-slate-100 focus:border-primary'}`}
+            className={`w-full pl-12 pr-12 py-3.5 bg-slate-50/80 border-2 rounded-xl text-slate-900 placeholder:text-slate-300 focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all duration-300 outline-none text-sm font-medium ${state.errors?.password ? 'border-red-200 focus:border-red-300 focus:ring-red-50' : 'border-slate-100 focus:border-primary'}`}
             placeholder="••••••••"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors duration-200 focus:outline-none"
+            tabIndex={-1}
+          >
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
+          </button>
         </div>
         {state.errors?.password && (
           <p className="mt-1.5 text-xs text-red-500 font-bold ml-1">{state.errors.password[0]}</p>

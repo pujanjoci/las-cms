@@ -4,6 +4,7 @@ import { Sidebar } from '@/components/layout/sidebar';
 import { Topbar } from '@/components/layout/topbar';
 import { SidebarProvider } from '@/components/layout/sidebar-context';
 import { ToastProvider } from '@/components/ui/toaster';
+import { SessionTimeout } from '@/components/auth/session-timeout';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -16,6 +17,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <ToastProvider>
       <SidebarProvider>
         <div className="h-screen flex overflow-hidden bg-surface">
+          <SessionTimeout />
           <Sidebar user={session} />
           <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
             <Topbar user={session} />
